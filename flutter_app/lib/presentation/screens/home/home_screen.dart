@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../config/routing/app_router.dart';
 import '../../../config/theme/colors.dart';
 import '../../../data/models/property.dart';
+import '../../providers/alerts_provider.dart';
 import '../../widgets/common/app_navigation.dart';
 import '../../widgets/common/buttons.dart';
 import '../../widgets/common/collection_card.dart';
@@ -88,7 +89,28 @@ class HomeScreen extends ConsumerWidget {
                       children: alerts.map((alert) {
                         return Padding(
                           padding: const EdgeInsets.only(bottom: 16),
-                          child: ServiceAlertCard(alert: alert),
+                          child: ServiceAlertCard(
+                            alert: alert,
+                            showDismissButton: true,
+                            onTap: () => _goToAlertDetail(context, alert.id),
+                            onDismiss: () {
+                              viewModel.dismissAlert(alert);
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                SnackBar(
+                                  content: const Text('Alert dismissed'),
+                                  action: SnackBarAction(
+                                    label: 'Undo',
+                                    onPressed: () {
+                                      // Restore the alert
+                                      ref
+                                          .read(dismissedAlertsProvider.notifier)
+                                          .restore(alert.id);
+                                    },
+                                  ),
+                                ),
+                              );
+                            },
+                          ),
                         );
                       }).toList(),
                     ),
@@ -133,6 +155,10 @@ void _goToSettings(BuildContext context) {
 
 void _goToAdmin(BuildContext context) {
   context.go(adminRoute);
+}
+
+void _goToAlertDetail(BuildContext context, String alertId) {
+  context.go('$alertDetailRoute/$alertId');
 }
 
 class _SectionHeading extends StatelessWidget {

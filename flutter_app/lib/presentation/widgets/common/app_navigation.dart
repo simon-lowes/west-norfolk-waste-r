@@ -21,8 +21,12 @@ class AppNavigation extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Clamp selectedIndex to valid range (0 to destinations.length - 1)
+    // If currentIndex is -1 or out of range, default to 0 to avoid crash
+    final safeIndex = currentIndex.clamp(0, _destinations.length - 1);
+
     return NavigationBar(
-      selectedIndex: currentIndex,
+      selectedIndex: safeIndex,
       onDestinationSelected: onDestinationSelected,
       destinations: [
         for (final destination in _destinations)

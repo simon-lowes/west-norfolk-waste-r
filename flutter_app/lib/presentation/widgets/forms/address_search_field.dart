@@ -86,6 +86,7 @@ class _AddressSearchFieldState extends State<AddressSearchField> {
         else
           DropdownButtonFormField<Property>(
             key: ValueKey(_selectedProperty?.id ?? 'address-field'),
+            // ignore: deprecated_member_use
             initialValue: _selectedProperty,
             decoration: const InputDecoration(
               labelText: 'Select address',

@@ -55,11 +55,25 @@ class AdminScreen extends ConsumerWidget {
           children: [
             const _AdminInfoCard(),
             const SizedBox(height: 24),
-            Text(
-              'Create alert',
-              style: Theme.of(
-                context,
-              ).textTheme.titleMedium?.copyWith(color: AppColors.darkText),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  state.isEditing ? 'Edit alert' : 'Create alert',
+                  style: Theme.of(
+                    context,
+                  ).textTheme.titleMedium?.copyWith(color: AppColors.darkText),
+                ),
+                if (state.isEditing)
+                  TextButton.icon(
+                    onPressed: viewModel.cancelEdit,
+                    icon: const Icon(Icons.close, size: 18),
+                    label: const Text('Cancel'),
+                    style: TextButton.styleFrom(
+                      foregroundColor: AppColors.darkGrey,
+                    ),
+                  ),
+              ],
             ),
             const SizedBox(height: 12),
             if (state.submitError != null)
@@ -81,7 +95,7 @@ class AdminScreen extends ConsumerWidget {
         ),
       ),
       bottomNavigationBar: AppNavigation(
-        currentIndex: 0,
+        currentIndex: -1, // Admin is not in the nav bar, so no item is selected
         onDestinationSelected: (index) =>
             _onDestinationSelected(context, index),
       ),
@@ -179,15 +193,15 @@ class _CreateAlertForm extends StatelessWidget {
           ),
           const SizedBox(height: 24),
           PrimaryButton(
-            label: 'Create alert',
-            icon: const Icon(Icons.add_alert_outlined),
+            label: state.isEditing ? 'Update alert' : 'Create alert',
+            icon: Icon(state.isEditing ? Icons.save_outlined : Icons.add_alert_outlined),
             onPressed: state.isSubmitting ? null : viewModel.submitAlert,
             isLoading: state.isSubmitting,
           ),
           const SizedBox(height: 12),
           SecondaryButton(
-            label: 'Reset form',
-            icon: const Icon(Icons.refresh_outlined),
+            label: state.isEditing ? 'Cancel edit' : 'Reset form',
+            icon: Icon(state.isEditing ? Icons.close : Icons.refresh_outlined),
             onPressed: state.isSubmitting ? null : viewModel.resetForm,
             expand: true,
           ),
@@ -274,6 +288,7 @@ class _AlertsSection extends StatelessWidget {
                 child: _AlertListTile(
                   alert: alert,
                   isDeleting: state.deletingAlertId == alert.id,
+                  onEdit: () => viewModel.editAlert(alert),
                   onDelete: () => viewModel.deleteAlert(alert.id),
                 ),
               ),
@@ -294,11 +309,13 @@ class _AlertListTile extends StatelessWidget {
   const _AlertListTile({
     required this.alert,
     required this.isDeleting,
+    required this.onEdit,
     required this.onDelete,
   });
 
   final ServiceAlert alert;
   final bool isDeleting;
+  final VoidCallback onEdit;
   final VoidCallback onDelete;
 
   @override
@@ -309,17 +326,35 @@ class _AlertListTile extends StatelessWidget {
         Positioned(
           top: 8,
           right: 8,
-          child: IconButton(
-            tooltip: 'Delete alert',
-            onPressed: isDeleting ? null : onDelete,
-            style: IconButton.styleFrom(foregroundColor: AppColors.error),
-            icon: isDeleting
-                ? const SizedBox(
-                    height: 20,
-                    width: 20,
-                    child: CircularProgressIndicator(strokeWidth: 2),
-                  )
-                : const Icon(Icons.delete_forever_outlined),
+          child: Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              IconButton(
+                tooltip: 'Edit alert',
+                onPressed: isDeleting ? null : onEdit,
+                style: IconButton.styleFrom(
+                  foregroundColor: AppColors.primary,
+                  backgroundColor: AppColors.white.withAlpha((255 * 0.9).round()),
+                ),
+                icon: const Icon(Icons.edit_outlined, size: 20),
+              ),
+              const SizedBox(width: 4),
+              IconButton(
+                tooltip: 'Delete alert',
+                onPressed: isDeleting ? null : onDelete,
+                style: IconButton.styleFrom(
+                  foregroundColor: AppColors.error,
+                  backgroundColor: AppColors.white.withAlpha((255 * 0.9).round()),
+                ),
+                icon: isDeleting
+                    ? const SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(strokeWidth: 2),
+                      )
+                    : const Icon(Icons.delete_forever_outlined, size: 20),
+              ),
+            ],
           ),
         ),
       ],

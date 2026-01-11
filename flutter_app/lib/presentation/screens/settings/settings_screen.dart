@@ -84,7 +84,7 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
         ),
       ),
       bottomNavigationBar: AppNavigation(
-        currentIndex: 0,
+        currentIndex: -1, // Settings is not in the nav bar, so no item is selected
         onDestinationSelected: (index) =>
             _onDestinationSelected(context, index),
       ),

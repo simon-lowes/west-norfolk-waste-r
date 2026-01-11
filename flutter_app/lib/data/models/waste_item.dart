@@ -13,12 +13,16 @@ class WasteItem {
     required this.name,
     required this.binType,
     required this.notes,
+    this.keywords = const [],
   });
 
   final String id;
   final String name;
   final BinType binType;
   final String notes;
+
+  /// Alternative search terms/aliases for this item
+  final List<String> keywords;
 
   factory WasteItem.fromJson(Map<String, dynamic> json) =>
       _$WasteItemFromJson(json);

@@ -60,6 +60,10 @@ enum ReportType {
   missedBin,
   @JsonValue('fly-tipping')
   flyTipping,
+  @JsonValue('damaged-bin')
+  damagedBin,
+  @JsonValue('overflowing-bin')
+  overflowingBin,
   @JsonValue('street-lighting')
   streetLighting,
   @JsonValue('other')
@@ -70,13 +74,17 @@ extension ReportTypeExtensions on ReportType {
   String get label {
     switch (this) {
       case ReportType.missedBin:
-        return 'Missed Bin';
+        return 'Missed Collection';
       case ReportType.flyTipping:
         return 'Fly-tipping';
+      case ReportType.damagedBin:
+        return 'Damaged Bin';
+      case ReportType.overflowingBin:
+        return 'Overflowing Bin';
       case ReportType.streetLighting:
-        return 'Street lighting';
+        return 'Street Lighting';
       case ReportType.other:
-        return 'Other';
+        return 'Other Issue';
     }
   }
 }

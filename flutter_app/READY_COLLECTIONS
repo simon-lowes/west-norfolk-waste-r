@@ -1,0 +1,40 @@
+Collections complete
+
+## Summary of Work Completed
+
+### 1. Address Selection (Verified Complete)
+- Postcode lookup functionality with fuzzy search filtering
+- Address list display using DropdownButtonFormField
+- Address persistence with SharedPreferences (property_provider.dart)
+- Settings screen address management with clear selection option
+- 12 mock properties across 6 Norfolk postcodes (expanded from 3)
+
+### 2. Collection Schedule (Verified Complete)
+- Collection dates calculated from day-of-week data
+- Next 4 collections displayed on HomeScreen sorted by date
+- Find Bin Day screen shows all 4 bin types in grid
+- Bank holiday adjustments implemented through 2026
+
+### 3. Bug Fixes Applied
+- Added 2026 UK bank holidays (date_utils.dart)
+- Fixed Settings screen navigation index (was showing Home as selected)
+- Fixed Admin screen navigation index (was showing Home as selected)
+- Added ignore directive for deprecated_member_use warning on DropdownButtonFormField
+
+### 4. Expanded Mock Data
+- Increased from 3 to 12 mock properties
+- Coverage across PE30, PE31, PE32, PE33, PE36, and NR21 postcodes
+- Variety of collection day schedules for testing
+
+### 5. Verification
+- flutter analyze: No issues found
+- flutter test: All tests passed
+- flutter build web: Successful
+
+The address selection to collection display flow is fully functional:
+1. User navigates to Settings
+2. Enters postcode in search field
+3. Selects address from filtered dropdown
+4. Address is persisted to SharedPreferences
+5. HomeScreen displays next 4 collections for selected property
+6. Collection dates account for bank holidays
