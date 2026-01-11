@@ -149,26 +149,37 @@ class _ReportForm extends StatelessWidget {
           onChanged: viewModel.updateAddress,
         ),
         const SizedBox(height: 24),
+        Text(
+          'Photo (optional)',
+          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+            color: AppColors.darkText,
+          ),
+        ),
+        const SizedBox(height: 8),
         PhotoPickerButton(
           key: ValueKey('photo-${state.formResetCounter}'),
           initialFile: state.photoFile,
           onImagePicked: viewModel.setPhoto,
           onError: viewModel.setPhotoError,
-          label: state.photoFile == null
-              ? 'Add photo (optional)'
-              : 'Replace photo',
         ),
         if (state.photoError != null) ...[
           const SizedBox(height: 8),
           _InputErrorText(state.photoError!),
         ],
         const SizedBox(height: 24),
+        Text(
+          'Location (optional)',
+          style: Theme.of(context).textTheme.titleSmall?.copyWith(
+            color: AppColors.darkText,
+          ),
+        ),
+        const SizedBox(height: 8),
         LocationPickerButton(
           key: ValueKey('location-${state.formResetCounter}'),
           onLocationPicked: viewModel.updateLocation,
           onError: viewModel.setLocationError,
           label: state.location == null
-              ? 'Use my location (optional)'
+              ? 'Use my location'
               : 'Update location',
         ),
         if (state.location != null) ...[

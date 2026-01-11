@@ -13,6 +13,7 @@ class AdminAlertsState {
     required this.startDate,
     required this.endDate,
     required this.affectedPostcodes,
+    this.editingAlertId,
     this.titleError,
     this.messageError,
     this.startDateError,
@@ -47,6 +48,7 @@ class AdminAlertsState {
   final DateTime? startDate;
   final DateTime? endDate;
   final String affectedPostcodes;
+  final String? editingAlertId;
 
   final String? titleError;
   final String? messageError;
@@ -65,6 +67,8 @@ class AdminAlertsState {
 
   final int formResetCounter;
 
+  bool get isEditing => editingAlertId != null;
+
   AdminAlertsState copyWith({
     AsyncValue<List<ServiceAlert>>? alerts,
     String? title,
@@ -73,6 +77,7 @@ class AdminAlertsState {
     DateTime? startDate,
     DateTime? endDate,
     String? affectedPostcodes,
+    Object? editingAlertId = _sentinel,
     Object? titleError = _sentinel,
     Object? messageError = _sentinel,
     Object? startDateError = _sentinel,
@@ -94,6 +99,9 @@ class AdminAlertsState {
       startDate: startDate ?? this.startDate,
       endDate: endDate ?? this.endDate,
       affectedPostcodes: affectedPostcodes ?? this.affectedPostcodes,
+      editingAlertId: identical(editingAlertId, _sentinel)
+          ? this.editingAlertId
+          : editingAlertId as String?,
       titleError: identical(titleError, _sentinel)
           ? this.titleError
           : titleError as String?,
@@ -201,26 +209,64 @@ class AdminAlertsViewModel extends AutoDisposeNotifier<AdminAlertsState> {
     final postcodes = validation;
 
     state = state.copyWith(isSubmitting: true, submitError: null);
-    final alert = _buildAlert(postcodes);
 
     try {
-      await ref.read(alertsProvider.notifier).create(alert);
-      _resetFormFields();
-      state = state.copyWith(
-        isSubmitting: false,
-        notificationMessage: 'Alert created successfully.',
-        notificationIsError: false,
-        notificationId: state.notificationId + 1,
-      );
+      if (state.isEditing) {
+        final alert = _buildAlertWithId(state.editingAlertId!, postcodes);
+        await ref.read(alertsProvider.notifier).update(alert);
+        _resetFormFields();
+        state = state.copyWith(
+          isSubmitting: false,
+          notificationMessage: 'Alert updated successfully.',
+          notificationIsError: false,
+          notificationId: state.notificationId + 1,
+        );
+      } else {
+        final alert = _buildAlert(postcodes);
+        await ref.read(alertsProvider.notifier).create(alert);
+        _resetFormFields();
+        state = state.copyWith(
+          isSubmitting: false,
+          notificationMessage: 'Alert created successfully.',
+          notificationIsError: false,
+          notificationId: state.notificationId + 1,
+        );
+      }
     } catch (_) {
+      final action = state.isEditing ? 'update' : 'create';
       state = state.copyWith(
         isSubmitting: false,
-        submitError: 'Unable to create alert. Please try again.',
-        notificationMessage: 'Failed to create alert.',
+        submitError: 'Unable to $action alert. Please try again.',
+        notificationMessage: 'Failed to $action alert.',
         notificationIsError: true,
         notificationId: state.notificationId + 1,
       );
     }
+  }
+
+  void editAlert(ServiceAlert alert) {
+    state = state.copyWith(
+      editingAlertId: alert.id,
+      title: alert.title,
+      message: alert.message,
+      severity: alert.severity,
+      startDate: DateTime.parse(alert.startDate),
+      endDate: DateTime.parse(alert.endDate),
+      affectedPostcodes: alert.affectedPostcodes.isEmpty
+          ? 'ALL'
+          : alert.affectedPostcodes.join(', '),
+      titleError: null,
+      messageError: null,
+      startDateError: null,
+      endDateError: null,
+      affectedPostcodesError: null,
+      submitError: null,
+      formResetCounter: state.formResetCounter + 1,
+    );
+  }
+
+  void cancelEdit() {
+    _resetFormFields();
   }
 
   Future<void> refreshAlerts() {
@@ -257,6 +303,7 @@ class AdminAlertsViewModel extends AutoDisposeNotifier<AdminAlertsState> {
   void _resetFormFields() {
     final now = DateTime.now();
     state = state.copyWith(
+      editingAlertId: null,
       title: '',
       message: '',
       severity: AlertSeverity.info,
@@ -314,6 +361,18 @@ class AdminAlertsViewModel extends AutoDisposeNotifier<AdminAlertsState> {
     final now = DateTime.now();
     return ServiceAlert(
       id: 'alert-${now.microsecondsSinceEpoch}',
+      title: state.title.trim(),
+      message: state.message.trim(),
+      affectedPostcodes: postcodes,
+      startDate: state.startDate!.toIso8601String(),
+      endDate: state.endDate!.toIso8601String(),
+      severity: state.severity,
+    );
+  }
+
+  ServiceAlert _buildAlertWithId(String id, List<String> postcodes) {
+    return ServiceAlert(
+      id: id,
       title: state.title.trim(),
       message: state.message.trim(),
       affectedPostcodes: postcodes,

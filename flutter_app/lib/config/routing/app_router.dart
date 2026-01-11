@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../presentation/screens/alert_detail/alert_detail_screen.dart';
 import '../../presentation/screens/find_bin_day/find_bin_day_screen.dart';
 import '../../presentation/screens/home/home_screen.dart';
 import '../../presentation/screens/recycling_centres/recycling_centres_screen.dart';
@@ -19,6 +20,7 @@ const String findBinDayRoute = '/find-bin-day';
 const String whatGoesWhereRoute = '/what-goes-where';
 const String recyclingCentresRoute = '/recycling-centres';
 const String serviceAlertsRoute = '/service-alerts';
+const String alertDetailRoute = '/alert';
 const String reportIssueRoute = '/report-issue';
 const String adminRoute = '/admin';
 
@@ -67,6 +69,14 @@ final appRouterProvider = Provider<GoRouter>((ref) {
         name: ServiceAlertsScreen.routeName,
         builder: (BuildContext context, GoRouterState state) =>
             const ServiceAlertsScreen(),
+      ),
+      GoRoute(
+        path: '$alertDetailRoute/:alertId',
+        name: AlertDetailScreen.routeName,
+        builder: (BuildContext context, GoRouterState state) {
+          final alertId = state.pathParameters['alertId'] ?? '';
+          return AlertDetailScreen(alertId: alertId);
+        },
       ),
       GoRoute(
         path: reportIssueRoute,

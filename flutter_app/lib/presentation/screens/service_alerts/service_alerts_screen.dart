@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import '../../../config/routing/app_router.dart';
 import '../../../config/theme/colors.dart';
 import '../../../data/models/service_alert.dart';
+import '../../providers/alerts_provider.dart';
 import '../../widgets/common/app_navigation.dart';
 import '../../widgets/common/custom_app_bar.dart';
 import '../../widgets/common/empty_state.dart';
@@ -61,14 +62,14 @@ class ServiceAlertsScreen extends ConsumerWidget {
   }
 }
 
-class _AlertsContent extends StatelessWidget {
+class _AlertsContent extends ConsumerWidget {
   const _AlertsContent({required this.alerts, required this.onRetry});
 
   final AsyncValue<List<ServiceAlert>> alerts;
   final VoidCallback onRetry;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     return alerts.when(
       data: (alerts) {
         if (alerts.isEmpty) {
@@ -83,7 +84,30 @@ class _AlertsContent extends StatelessWidget {
           children: alerts.map((alert) {
             return Padding(
               padding: const EdgeInsets.only(bottom: 16),
-              child: ServiceAlertCard(alert: alert),
+              child: ServiceAlertCard(
+                alert: alert,
+                showDismissButton: true,
+                onTap: () => _goToAlertDetail(context, alert.id),
+                onDismiss: () {
+                  ref.read(dismissedAlertsProvider.notifier).dismiss(
+                        alert.id,
+                        alert.endDate,
+                      );
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: const Text('Alert dismissed'),
+                      action: SnackBarAction(
+                        label: 'Undo',
+                        onPressed: () {
+                          ref
+                              .read(dismissedAlertsProvider.notifier)
+                              .restore(alert.id);
+                        },
+                      ),
+                    ),
+                  );
+                },
+              ),
             );
           }).toList(),
         );
@@ -174,4 +198,8 @@ void _goToSettings(BuildContext context) {
 
 void _goToAdmin(BuildContext context) {
   context.go(adminRoute);
+}
+
+void _goToAlertDetail(BuildContext context, String alertId) {
+  context.go('$alertDetailRoute/$alertId');
 }

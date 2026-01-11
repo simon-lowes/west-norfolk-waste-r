@@ -1,0 +1,66 @@
+Issue reporting complete
+
+## Summary of Report Issue Feature
+
+### Completed Implementation
+
+1. **Issue Type Selector**
+   - Dropdown with 6 issue types:
+     - Missed Collection
+     - Fly-tipping
+     - Damaged Bin (NEW)
+     - Overflowing Bin (NEW)
+     - Street Lighting
+     - Other Issue
+   - Form validation with error messaging
+
+2. **Description Text Field**
+   - Multiline text input (4-6 lines)
+   - Required field with validation
+   - Inline error messages
+
+3. **Photo Attachment (Camera/Gallery)**
+   - Camera capture button
+   - Gallery selection button (NEW)
+   - Image preview thumbnail (NEW)
+   - Remove photo option (NEW)
+   - 5MB file size validation
+   - Image compression (max 1920px, 85% quality)
+   - Loading state during capture
+
+4. **Location Picker (Optional Geolocation)**
+   - Geolocator integration
+   - Permission handling
+   - Lat/Lng display after capture
+   - Graceful fallback on denial
+
+5. **Form Validation**
+   - Issue type required
+   - Description required
+   - Optional postcode format validation
+   - Clear inline error messages
+
+6. **Submit with Confirmation Reference**
+   - WN-prefixed reference numbers (e.g., WN12345678)
+   - Loading state during submission
+   - Error handling with retry
+
+7. **Local Storage (Demo Mode)**
+   - Reports saved to SharedPreferences
+   - ReportRepository handles persistence
+   - Reports survive app restart
+
+8. **Success Confirmation Screen**
+   - Animated transition to success card
+   - Reference number prominently displayed
+   - "Report another issue" button
+   - "Back to home" button
+
+### Files Modified
+- lib/data/models/enums.dart (added damagedBin, overflowingBin types)
+- lib/presentation/widgets/forms/photo_picker_button.dart (camera + gallery, preview, remove)
+- lib/presentation/screens/report_issue/report_issue_screen.dart (section labels)
+
+### Verification
+- flutter analyze: No issues found
+- flutter build web: Success

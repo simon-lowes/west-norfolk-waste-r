@@ -14,6 +14,8 @@ class RecyclingCentre {
     required this.longitude,
     required this.openingHours,
     required this.notes,
+    this.materialsAccepted = const [],
+    this.phoneNumber,
   });
 
   final String id;
@@ -23,6 +25,8 @@ class RecyclingCentre {
   final double longitude;
   final String openingHours;
   final String notes;
+  final List<String> materialsAccepted;
+  final String? phoneNumber;
 
   factory RecyclingCentre.fromJson(Map<String, dynamic> json) =>
       _$RecyclingCentreFromJson(json);

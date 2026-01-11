@@ -11,6 +11,9 @@ WasteItem _$WasteItemFromJson(Map<String, dynamic> json) => WasteItem(
   name: json['name'] as String,
   binType: $enumDecode(_$BinTypeEnumMap, json['binType']),
   notes: json['notes'] as String,
+  keywords:
+      (json['keywords'] as List<dynamic>?)?.map((e) => e as String).toList() ??
+      const [],
 );
 
 Map<String, dynamic> _$WasteItemToJson(WasteItem instance) => <String, dynamic>{
@@ -18,6 +21,7 @@ Map<String, dynamic> _$WasteItemToJson(WasteItem instance) => <String, dynamic>{
   'name': instance.name,
   'binType': _$BinTypeEnumMap[instance.binType]!,
   'notes': instance.notes,
+  'keywords': instance.keywords,
 };
 
 const _$BinTypeEnumMap = {
