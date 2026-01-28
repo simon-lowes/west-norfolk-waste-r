@@ -22,6 +22,9 @@ test.describe('Smoke test', () => {
     });
 
     page.on('pageerror', (error) => {
+      // Ignore expected CI errors from missing external service credentials
+      if (error.message.includes('Failed to fetch KV key')) return;
+
       fatalErrors.push(error.message);
     });
 
