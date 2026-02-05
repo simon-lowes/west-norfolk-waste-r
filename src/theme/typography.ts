@@ -1,14 +1,28 @@
 // West Norfolk Waste - Typography
-// Using system fonts with fallback
+// Nunito for headlines (friendly, rounded), system fonts for body (performance)
+
+// Whether fonts are loaded - set by App.tsx after font loading
+let fontsLoaded = false;
+
+export function setFontsLoaded(loaded: boolean) {
+  fontsLoaded = loaded;
+}
+
+export function areFontsLoaded(): boolean {
+  return fontsLoaded;
+}
 
 export const typography = {
-  // Font families - Using system fonts for consistency
-  // Plus Jakarta Sans would need expo-font setup
+  // Font families
+  // Headlines use Nunito when loaded, body uses system fonts for performance
   fontFamily: {
     regular: 'System',
     medium: 'System',
     semibold: 'System',
     bold: 'System',
+    // Headline fonts (Nunito - friendly, rounded)
+    headline: 'Nunito_700Bold',
+    headlineFallback: 'System',
   },
 
   // Font sizes

@@ -9,7 +9,7 @@ import {
   ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTheme } from '../theme';
+import { useTheme, areFontsLoaded, typography } from '../theme';
 import { useWasteSearch } from '../hooks';
 import { WasteItem, BinType, getBinColorKey } from '../types';
 import { SearchInput, Card, BinBadge, EmptyState } from '../components';
@@ -145,8 +145,8 @@ export function WhatGoesWhereScreen() {
   const renderNoResults = () => (
     <EmptyState
       icon={<Trash2 size={48} color={colors.textTertiary} strokeWidth={1.5} />}
-      title="No results found"
-      message={`We couldn't find "${query}" in our database. Try searching with different words.`}
+      title="Hmm, that's a tricky one..."
+      message={`We couldn't find "${query}" in our database. Try searching with different words, or check your local recycling centre.`}
     />
   );
 
@@ -162,7 +162,11 @@ export function WhatGoesWhereScreen() {
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={[styles.title, { color: colors.text }]}>
+        <Text style={[
+          styles.title,
+          { color: colors.text },
+          areFontsLoaded() && { fontFamily: typography.fontFamily.headline }
+        ]}>
           What Goes Where
         </Text>
         <Text style={[styles.subtitle, { color: colors.textSecondary }]}>

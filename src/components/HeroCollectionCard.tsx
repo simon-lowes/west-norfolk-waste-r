@@ -1,7 +1,8 @@
-import React from 'react';
-import { View, Text, StyleSheet, Animated } from 'react-native';
+import React, { useRef, useEffect } from 'react';
+import { View, Text, StyleSheet, Animated, Platform } from 'react-native';
+import * as Haptics from 'expo-haptics';
 import { BinType, getBinTypeName, getBinColorKey } from '../types';
-import { formatDate } from '../utils';
+import { formatDate, createPulseAnimation, createPressAnimation } from '../utils';
 import { useTheme } from '../theme';
 import { Card } from './Card';
 import { Trash2, Recycle, Leaf, UtensilsCrossed, Clock } from 'lucide-react-native';
@@ -15,6 +16,34 @@ interface HeroCollectionCardProps {
 
 export function HeroCollectionCard({ binType, date, daysUntil, onPress }: HeroCollectionCardProps) {
   const { colors, layout, isDark } = useTheme();
+  const pulseScale = useRef(new Animated.Value(1)).current;
+  const pressScale = useRef(new Animated.Value(1)).current;
+  const pulseAnimation = useRef<ReturnType<typeof createPulseAnimation> | null>(null);
+
+  // Set up pulse animation for urgent collections
+  useEffect(() => {
+    if (daysUntil <= 1) {
+      pulseAnimation.current = createPulseAnimation(pulseScale, 0.98, 1.02);
+      pulseAnimation.current.start();
+    }
+
+    return () => {
+      if (pulseAnimation.current) {
+        pulseAnimation.current.stop();
+      }
+    };
+  }, [daysUntil, pulseScale]);
+
+  const { onPressIn, onPressOut } = createPressAnimation(pressScale, 0.97);
+
+  const handlePress = () => {
+    if (onPress) {
+      if (Platform.OS !== 'web') {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+      }
+      onPress();
+    }
+  };
   const colorKey = getBinColorKey(binType);
   const binColor = colors[colorKey];
   const binName = getBinTypeName(binType);
@@ -36,8 +65,8 @@ export function HeroCollectionCard({ binType, date, daysUntil, onPress }: HeroCo
   };
 
   const getCountdownText = () => {
-    if (daysUntil === 0) return 'Today';
-    if (daysUntil === 1) return 'Tomorrow';
+    if (daysUntil === 0) return 'Today - don\'t forget!';
+    if (daysUntil === 1) return 'Tomorrow!';
     return `In ${daysUntil} days`;
   };
 
@@ -47,15 +76,21 @@ export function HeroCollectionCard({ binType, date, daysUntil, onPress }: HeroCo
     return { opacity: 0.9 };
   };
 
+  // Combine pulse and press animations
+  const combinedScale = Animated.multiply(pulseScale, pressScale);
+
   return (
-    <Card
-      style={[
-        styles.card,
-        { backgroundColor: binColor },
-        getUrgencyStyle(),
-      ]}
-      onPress={onPress}
-    >
+    <Animated.View style={{ transform: [{ scale: combinedScale }] }}>
+      <Card
+        style={[
+          styles.card,
+          { backgroundColor: binColor },
+          !isDark && layout.shadowHero,
+          getUrgencyStyle(),
+        ]}
+        onPress={handlePress}
+        hapticFeedback={false}
+      >
       {/* Background pattern overlay */}
       <View style={styles.patternOverlay} />
 
@@ -89,6 +124,7 @@ export function HeroCollectionCard({ binType, date, daysUntil, onPress }: HeroCo
         <Text style={styles.label}>NEXT COLLECTION</Text>
       </View>
     </Card>
+    </Animated.View>
   );
 }
 

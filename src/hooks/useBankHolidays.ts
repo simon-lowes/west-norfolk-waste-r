@@ -1,0 +1,47 @@
+import { useState, useEffect } from 'react';
+import { BankHoliday, getNextBankHoliday, getDaysUntilHoliday } from '../api';
+
+interface UseBankHolidaysResult {
+  upcomingHoliday: BankHoliday | null;
+  daysUntilHoliday: number | null;
+  isLoading: boolean;
+  error: Error | null;
+  refetch: () => void;
+}
+
+/**
+ * Hook to get upcoming bank holidays
+ * Automatically fetches on mount and caches results
+ */
+export function useBankHolidays(): UseBankHolidaysResult {
+  const [upcomingHoliday, setUpcomingHoliday] = useState<BankHoliday | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<Error | null>(null);
+
+  const fetchData = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const holiday = await getNextBankHoliday();
+      setUpcomingHoliday(holiday);
+    } catch (err) {
+      setError(err instanceof Error ? err : new Error('Failed to fetch bank holidays'));
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const daysUntilHoliday = upcomingHoliday ? getDaysUntilHoliday(upcomingHoliday) : null;
+
+  return {
+    upcomingHoliday,
+    daysUntilHoliday,
+    isLoading,
+    error,
+    refetch: fetchData,
+  };
+}

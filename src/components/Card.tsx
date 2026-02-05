@@ -1,16 +1,43 @@
-import React, { ReactNode } from 'react';
-import { View, StyleSheet, ViewStyle, Pressable } from 'react-native';
+import React, { ReactNode, useRef } from 'react';
+import { View, StyleSheet, ViewStyle, Pressable, Animated, Platform } from 'react-native';
+import * as Haptics from 'expo-haptics';
 import { useTheme } from '../theme';
+import { createPressAnimation } from '../utils';
 
 interface CardProps {
   children: ReactNode;
   style?: ViewStyle;
   onPress?: () => void;
   variant?: 'default' | 'elevated' | 'outlined';
+  hapticFeedback?: boolean;
 }
 
-export function Card({ children, style, onPress, variant = 'default' }: CardProps) {
+export function Card({ children, style, onPress, variant = 'default', hapticFeedback = true }: CardProps) {
   const { colors, layout, isDark } = useTheme();
+  const scaleValue = useRef(new Animated.Value(1)).current;
+
+  const { onPressIn, onPressOut } = createPressAnimation(scaleValue, 0.97);
+
+  const handlePressIn = () => {
+    if (onPress) {
+      onPressIn();
+    }
+  };
+
+  const handlePressOut = () => {
+    if (onPress) {
+      onPressOut();
+    }
+  };
+
+  const handlePress = () => {
+    if (onPress) {
+      if (hapticFeedback && Platform.OS !== 'web') {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      }
+      onPress();
+    }
+  };
 
   const getVariantStyles = (): ViewStyle => {
     switch (variant) {
@@ -45,24 +72,20 @@ export function Card({ children, style, onPress, variant = 'default' }: CardProp
 
   if (onPress) {
     return (
-      <Pressable
-        onPress={onPress}
-        style={({ pressed }) => [
-          cardStyle,
-          style,
-          pressed && styles.pressed,
-        ]}
-      >
-        {children}
-      </Pressable>
+      <Animated.View style={{ transform: [{ scale: scaleValue }] }}>
+        <Pressable
+          onPress={handlePress}
+          onPressIn={handlePressIn}
+          onPressOut={handlePressOut}
+          style={[cardStyle, style]}
+        >
+          {children}
+        </Pressable>
+      </Animated.View>
     );
   }
 
   return <View style={[cardStyle, style]}>{children}</View>;
 }
 
-const styles = StyleSheet.create({
-  pressed: {
-    opacity: 0.7,
-  },
-});
+const styles = StyleSheet.create({});

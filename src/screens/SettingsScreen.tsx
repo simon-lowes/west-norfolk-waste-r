@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import {
   View,
   Text,
@@ -8,19 +8,60 @@ import {
   FlatList,
   Modal,
   Pressable,
+  Switch,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTheme } from '../theme';
-import { useProperty } from '../hooks';
+import * as Haptics from 'expo-haptics';
+import { useTheme, areFontsLoaded, typography } from '../theme';
+import { useProperty, useDevMode } from '../hooks';
 import { Property } from '../types';
 import { Card, ThemeToggle, Button, SearchInput } from '../components';
-import { MapPin, Check, X, ChevronRight, Palette } from 'lucide-react-native';
+import { MapPin, Check, X, ChevronRight, Palette, FlaskConical } from 'lucide-react-native';
+
+// Number of taps on version to reveal dev mode
+const DEV_MODE_TAP_COUNT = 5;
+const TAP_RESET_DELAY = 2000; // Reset tap count after 2 seconds of inactivity
 
 export function SettingsScreen() {
   const { colors, layout, isDark } = useTheme();
   const { selectedProperty, setSelectedProperty, allProperties } = useProperty();
+  const { isDemoMode, toggleMode } = useDevMode();
   const [showPropertyPicker, setShowPropertyPicker] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showDevMode, setShowDevMode] = useState(false);
+  const tapCountRef = useRef(0);
+  const tapTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Handle taps on version to reveal dev mode
+  const handleVersionTap = () => {
+    tapCountRef.current += 1;
+
+    // Clear any existing timer
+    if (tapTimerRef.current) {
+      clearTimeout(tapTimerRef.current);
+    }
+
+    // Set timer to reset tap count
+    tapTimerRef.current = setTimeout(() => {
+      tapCountRef.current = 0;
+    }, TAP_RESET_DELAY);
+
+    if (tapCountRef.current >= DEV_MODE_TAP_COUNT) {
+      tapCountRef.current = 0;
+      setShowDevMode(true);
+      if (Platform.OS !== 'web') {
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      }
+    }
+  };
+
+  const handleDevModeToggle = () => {
+    if (Platform.OS !== 'web') {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    }
+    toggleMode();
+  };
 
   // Filter properties by search query
   const filteredProperties = allProperties.filter((p) => {
@@ -73,7 +114,11 @@ export function SettingsScreen() {
       >
         {/* Header */}
         <View style={styles.header}>
-          <Text style={[styles.title, { color: colors.text }]}>
+          <Text style={[
+            styles.title,
+            { color: colors.text },
+            areFontsLoaded() && { fontFamily: typography.fontFamily.headline }
+          ]}>
             Settings
           </Text>
         </View>
@@ -139,14 +184,49 @@ export function SettingsScreen() {
           <Text style={[styles.aboutTitle, { color: colors.text }]}>
             West Norfolk Waste
           </Text>
-          <Text style={[styles.aboutText, { color: colors.textSecondary }]}>
-            Version 1.0.0
-          </Text>
+          <Pressable onPress={handleVersionTap}>
+            <Text style={[styles.aboutText, { color: colors.textSecondary }]}>
+              Version 1.0.0
+            </Text>
+          </Pressable>
           <Text style={[styles.aboutText, { color: colors.textSecondary, marginTop: 12 }]}>
             This app helps West Norfolk residents manage their household waste collection schedules,
             find recycling information, and locate nearby recycling centres.
           </Text>
         </Card>
+
+        {/* Developer Mode - Hidden by default, revealed by tapping version 5 times */}
+        {showDevMode && (
+          <>
+            <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>
+              DEVELOPER
+            </Text>
+            <Card style={styles.settingCard}>
+              <View style={styles.settingContent}>
+                <View style={[styles.settingIcon, { backgroundColor: colors.accent + '15' }]}>
+                  <FlaskConical size={20} color={colors.accent} strokeWidth={2} />
+                </View>
+                <View style={styles.settingInfo}>
+                  <Text style={[styles.settingTitle, { color: colors.text }]}>
+                    Data Mode
+                  </Text>
+                  <Text style={[styles.settingSubtitle, { color: colors.textSecondary }]}>
+                    {isDemoMode ? 'Demo (mock alerts)' : 'Real (live APIs)'}
+                  </Text>
+                </View>
+                <Switch
+                  value={!isDemoMode}
+                  onValueChange={handleDevModeToggle}
+                  trackColor={{ false: colors.border, true: colors.accent }}
+                  thumbColor={isDemoMode ? colors.surface : colors.surface}
+                />
+              </View>
+              <Text style={[styles.devModeNote, { color: colors.textTertiary }]}>
+                Demo mode shows all mock alerts for demonstrations. Real mode shows only alerts from live APIs (bank holidays, weather warnings).
+              </Text>
+            </Card>
+          </>
+        )}
       </ScrollView>
 
       {/* Property Picker Modal */}
@@ -299,5 +379,10 @@ const styles = StyleSheet.create({
   propertyItemPostcode: {
     fontSize: 13,
     marginTop: 2,
+  },
+  devModeNote: {
+    fontSize: 12,
+    marginTop: 12,
+    lineHeight: 18,
   },
 });

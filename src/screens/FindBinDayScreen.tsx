@@ -7,7 +7,7 @@ import {
   useWindowDimensions,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTheme } from '../theme';
+import { useTheme, areFontsLoaded, typography } from '../theme';
 import { useProperty, useCollections } from '../hooks';
 import { CollectionCard, EmptyState, Button } from '../components';
 import { Calendar } from 'lucide-react-native';
@@ -31,7 +31,11 @@ export function FindBinDayScreen({ navigation }: FindBinDayScreenProps) {
     return (
       <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
         <View style={styles.header}>
-          <Text style={[styles.title, { color: colors.text }]}>
+          <Text style={[
+            styles.title,
+            { color: colors.text },
+            areFontsLoaded() && { fontFamily: typography.fontFamily.headline }
+          ]}>
             Find Your Bin Day
           </Text>
         </View>
@@ -59,7 +63,11 @@ export function FindBinDayScreen({ navigation }: FindBinDayScreenProps) {
       >
         {/* Header */}
         <View style={styles.header}>
-          <Text style={[styles.title, { color: colors.text }]}>
+          <Text style={[
+            styles.title,
+            { color: colors.text },
+            areFontsLoaded() && { fontFamily: typography.fontFamily.headline }
+          ]}>
             Find Your Bin Day
           </Text>
           <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
@@ -70,24 +78,26 @@ export function FindBinDayScreen({ navigation }: FindBinDayScreenProps) {
         {/* Grid of Collections */}
         {isWide ? (
           <View style={styles.grid}>
-            {collections.map((collection) => (
+            {collections.map((collection, index) => (
               <View key={collection.binType} style={styles.gridItem}>
                 <CollectionCard
                   binType={collection.binType}
                   date={collection.date}
                   daysUntil={collection.daysUntil}
+                  index={index}
                 />
               </View>
             ))}
           </View>
         ) : (
           <View>
-            {collections.map((collection) => (
+            {collections.map((collection, index) => (
               <CollectionCard
                 key={collection.binType}
                 binType={collection.binType}
                 date={collection.date}
                 daysUntil={collection.daysUntil}
+                index={index}
               />
             ))}
           </View>

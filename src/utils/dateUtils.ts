@@ -67,13 +67,13 @@ export function getDaysUntil(targetDate: Date, fromDate: Date = new Date()): num
 /**
  * Format days until as a friendly string
  * @param days - Number of days
- * @returns Friendly string like "Tomorrow", "In 3 days", etc.
+ * @returns Friendly string like "Tomorrow!", "In 3 days", etc.
  */
 export function formatDaysUntil(days: number): string {
   if (days === 0) {
-    return 'Today';
+    return 'Today!';
   } else if (days === 1) {
-    return 'Tomorrow';
+    return 'Tomorrow!';
   } else if (days < 7) {
     return `In ${days} days`;
   } else if (days === 7) {
