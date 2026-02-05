@@ -244,9 +244,12 @@ const styles = StyleSheet.create({
     marginBottom: 16,
   },
   typeCard: {
-    width: '47%',
+    flex: 1,
+    minWidth: 140,
+    maxWidth: '48%',
     alignItems: 'center',
     paddingVertical: 16,
+    paddingHorizontal: 8,
   },
   typeLabel: {
     fontSize: 13,

@@ -13,18 +13,18 @@ import { useTheme, areFontsLoaded, typography } from '../theme';
 import { useWasteSearch } from '../hooks';
 import { WasteItem, BinType, getBinColorKey } from '../types';
 import { SearchInput, Card, BinBadge, EmptyState } from '../components';
-import { Search, Trash2, Recycle, Leaf, UtensilsCrossed, Building2, Lightbulb } from 'lucide-react-native';
+import { Search, Trash2, Recycle, Leaf, UtensilsCrossed, Building2 } from 'lucide-react-native';
 
-// Popular search suggestions
+// Popular search suggestions - all verified to return results
 const POPULAR_SEARCHES = [
-  'batteries',
   'pizza box',
+  'batteries',
+  'coffee cup',
   'plastic bag',
   'glass bottle',
   'food scraps',
   'clothes',
   'cardboard',
-  'nappies',
 ];
 
 export function WhatGoesWhereScreen() {
@@ -75,13 +75,13 @@ export function WhatGoesWhereScreen() {
   const renderEmptySearch = () => (
     <View style={styles.emptyContainer}>
       <View style={styles.emptyIconContainer}>
-        <Lightbulb size={48} color={colors.primary} strokeWidth={1.5} />
+        <Recycle size={48} color={colors.primary} strokeWidth={1.5} />
       </View>
       <Text style={[styles.emptyTitle, { color: colors.text }]}>
         What goes where?
       </Text>
       <Text style={[styles.emptyMessage, { color: colors.textSecondary }]}>
-        Search our database of 77+ items to find out the correct bin
+        Search our database of 80+ items to find out the correct bin
       </Text>
 
       {/* Popular searches */}

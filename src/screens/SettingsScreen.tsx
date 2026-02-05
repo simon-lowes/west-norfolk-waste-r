@@ -13,7 +13,7 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
-import { useTheme, areFontsLoaded, typography } from '../theme';
+import { useTheme, areFontsLoaded, typography, ThemePreference } from '../theme';
 import { useProperty, useDevMode } from '../hooks';
 import { Property } from '../types';
 import { Card, ThemeToggle, Button, SearchInput } from '../components';
@@ -23,8 +23,19 @@ import { MapPin, Check, X, ChevronRight, Palette, FlaskConical } from 'lucide-re
 const DEV_MODE_TAP_COUNT = 5;
 const TAP_RESET_DELAY = 2000; // Reset tap count after 2 seconds of inactivity
 
+const getThemeLabel = (preference: ThemePreference, isDark: boolean): string => {
+  switch (preference) {
+    case 'system':
+      return `Auto (${isDark ? 'Dark' : 'Light'})`;
+    case 'light':
+      return 'Light mode';
+    case 'dark':
+      return 'Dark mode';
+  }
+};
+
 export function SettingsScreen() {
-  const { colors, layout, isDark } = useTheme();
+  const { colors, layout, isDark, preference } = useTheme();
   const { selectedProperty, setSelectedProperty, allProperties } = useProperty();
   const { isDemoMode, toggleMode } = useDevMode();
   const [showPropertyPicker, setShowPropertyPicker] = useState(false);
@@ -169,7 +180,7 @@ export function SettingsScreen() {
                 Theme
               </Text>
               <Text style={[styles.settingSubtitle, { color: colors.textSecondary }]}>
-                {isDark ? 'Dark mode' : 'Light mode'}
+                {getThemeLabel(preference, isDark)}
               </Text>
             </View>
             <ThemeToggle showLabel={false} />
@@ -188,6 +199,11 @@ export function SettingsScreen() {
             <Text style={[styles.aboutText, { color: colors.textSecondary }]}>
               Version 1.0.0
             </Text>
+            {!showDevMode && (
+              <Text style={[styles.devHintText, { color: colors.textTertiary }]}>
+                Tap 5 times for developer options
+              </Text>
+            )}
           </Pressable>
           <Text style={[styles.aboutText, { color: colors.textSecondary, marginTop: 12 }]}>
             This app helps West Norfolk residents manage their household waste collection schedules,
@@ -384,5 +400,10 @@ const styles = StyleSheet.create({
     fontSize: 12,
     marginTop: 12,
     lineHeight: 18,
+  },
+  devHintText: {
+    fontSize: 11,
+    marginTop: 4,
+    fontStyle: 'italic',
   },
 });

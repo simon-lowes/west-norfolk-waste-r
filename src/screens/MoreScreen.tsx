@@ -7,8 +7,8 @@ import {
   Pressable,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTheme } from '../theme';
-import { useProperty, useAlerts, useDismissedAlerts } from '../hooks';
+import { useTheme, ThemePreference } from '../theme';
+import { useProperty, useAlerts, useDismissedAlerts, useDevMode } from '../hooks';
 import { Card, ThemeToggle } from '../components';
 import {
   Bell,
@@ -19,6 +19,7 @@ import {
   Info,
   MessageSquare,
   Palette,
+  Database,
 } from 'lucide-react-native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
@@ -71,11 +72,23 @@ function MenuItem({ icon, title, subtitle, onPress, badge, rightElement }: MenuI
   );
 }
 
+const getThemeLabel = (preference: ThemePreference, isDark: boolean): string => {
+  switch (preference) {
+    case 'system':
+      return `Auto (${isDark ? 'Dark' : 'Light'})`;
+    case 'light':
+      return 'Light mode';
+    case 'dark':
+      return 'Dark mode';
+  }
+};
+
 export function MoreScreen({ navigation }: MoreScreenProps) {
-  const { colors, layout, isDark } = useTheme();
+  const { colors, layout, isDark, preference } = useTheme();
   const { selectedProperty } = useProperty();
   const { alerts } = useAlerts(selectedProperty?.postcode ?? null);
   const { isAlertDismissed } = useDismissedAlerts();
+  const { isDemoMode, toggleMode } = useDevMode();
 
   // Count unread alerts
   const unreadAlerts = alerts.filter((a) => !isAlertDismissed(a.id)).length;
@@ -132,9 +145,21 @@ export function MoreScreen({ navigation }: MoreScreenProps) {
           <MenuItem
             icon={<Palette size={20} color={colors.centre} strokeWidth={2} />}
             title="Appearance"
-            subtitle={isDark ? 'Dark mode' : 'Light mode'}
+            subtitle={getThemeLabel(preference, isDark)}
             onPress={() => {}}
             rightElement={<ThemeToggle showLabel={false} />}
+          />
+          <View style={[styles.separator, { backgroundColor: colors.borderLight }]} />
+          <MenuItem
+            icon={<Database size={20} color={colors.primary} strokeWidth={2} />}
+            title="Data Source"
+            subtitle={isDemoMode ? 'Using sample data' : 'Using live alerts'}
+            onPress={toggleMode}
+            rightElement={
+              <Text style={[styles.modeLabel, { color: colors.textSecondary }]}>
+                {isDemoMode ? 'Demo' : 'Live'}
+              </Text>
+            }
           />
         </View>
 
@@ -248,5 +273,10 @@ const styles = StyleSheet.create({
   aboutText: {
     fontSize: 14,
     lineHeight: 20,
+  },
+  modeLabel: {
+    fontSize: 14,
+    fontWeight: '500',
+    marginRight: 8,
   },
 });
