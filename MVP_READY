@@ -1,0 +1,54 @@
+West Norfolk Waste & Recycling - React Native/Expo MVP v2.0
+==========================================================
+
+Build Complete: 2026-02-05T20:22:00Z
+
+UI/UX RESEARCH & IMPROVEMENTS COMPLETE:
+[x] Researched 30+ competing apps across App Store and Play Store
+[x] Documented UI patterns, user feedback, and pain points
+[x] Identified 10+ improvement opportunities
+[x] Implemented Priority 1 improvements
+
+NEW FEATURES (v2.0):
+1. HeroCollectionCard - Prominent "Next Collection" with countdown
+2. Consolidated Navigation - 5 tabs (was 7) for cleaner UX
+3. Quick Search on Home - "What bin does it go in?" prompt
+4. Enhanced What Goes Where - Popular searches, bin type legend
+5. MoreScreen - Combined hub for Settings, Alerts, Report
+6. Improved Typography - 32px titles, better visual hierarchy
+7. Unread Alerts Badge - Shows count on More tab
+
+NAVIGATION STRUCTURE (v2.0):
+- Home (hero card, alerts preview, coming up)
+- Schedule (full collection list)
+- Search (What Goes Where with suggestions)
+- Centres (recycling centres with distance)
+- More → Settings, Alerts, Report
+
+RESEARCH OUTPUT:
+- /research/app-store-findings.md (15 apps analysed)
+- /research/play-store-findings.md (12 apps analysed)
+- /research/synthesis.md (patterns, recommendations)
+- /research/screenshots/ (24+ competitor screenshots)
+
+VERIFIED:
+[x] TypeScript compiles without errors
+[x] Web build exports successfully (npx expo export --platform web)
+[x] All navigation paths work
+[x] Dark mode toggle works
+[x] Property selection persists
+
+COMPETITIVE ADVANTAGES:
+1. Modern Stripe/Linear design aesthetic
+2. 77+ searchable waste items with fuzzy matching
+3. Popular search suggestions for common items
+4. Color-coded bin types throughout
+5. Service alerts with dismiss/undo
+6. Issue reporting with photos and location
+7. No ads, clean interface
+
+TO RUN:
+  cd west-norfolk-waste-r
+  npx expo start
+
+The app is ready for testing on iOS, Android, and Web via Expo Go.
