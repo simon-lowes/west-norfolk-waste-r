@@ -1,45 +1,73 @@
-import { cn } from '@/lib/utils'
+import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import { BinType, getBinTypeName, getBinColorKey } from '../types';
+import { useTheme } from '../theme';
 
 interface BinBadgeProps {
-  type: 'general' | 'recycling' | 'garden' | 'food' | 'recycling-centre'
-  className?: string
+  binType: BinType;
+  size?: 'small' | 'medium' | 'large';
 }
 
-const binConfig = {
-  general: {
-    label: 'General waste',
-    color: 'bg-[oklch(0.13_0_0)] text-white',
-  },
-  recycling: {
-    label: 'Recycling',
-    color: 'bg-[oklch(0.52_0.11_254)] text-white',
-  },
-  garden: {
-    label: 'Garden waste',
-    color: 'bg-[oklch(0.45_0.13_163)] text-white',
-  },
-  food: {
-    label: 'Food waste',
-    color: 'bg-[oklch(0.35_0.08_60)] text-white',
-  },
-  'recycling-centre': {
-    label: 'Recycling centre',
-    color: 'bg-[oklch(0.40_0.009_240)] text-white',
-  },
-}
+export function BinBadge({ binType, size = 'medium' }: BinBadgeProps) {
+  const { colors, layout } = useTheme();
+  const colorKey = getBinColorKey(binType);
+  const binColor = colors[colorKey];
+  const label = getBinTypeName(binType);
 
-export function BinBadge({ type, className }: BinBadgeProps) {
-  const config = binConfig[type]
-  
+  const sizeStyles = {
+    small: {
+      paddingVertical: 2,
+      paddingHorizontal: 8,
+      fontSize: 11,
+    },
+    medium: {
+      paddingVertical: 4,
+      paddingHorizontal: 12,
+      fontSize: 13,
+    },
+    large: {
+      paddingVertical: 6,
+      paddingHorizontal: 16,
+      fontSize: 15,
+    },
+  };
+
+  const currentSize = sizeStyles[size];
+
   return (
-    <span
-      className={cn(
-        'inline-flex items-center rounded-sm px-2 py-1 text-sm font-medium',
-        config.color,
-        className
-      )}
+    <View
+      style={[
+        styles.badge,
+        {
+          backgroundColor: binColor + '20', // 20% opacity
+          borderColor: binColor,
+          borderRadius: layout.radiusFull,
+          paddingVertical: currentSize.paddingVertical,
+          paddingHorizontal: currentSize.paddingHorizontal,
+        },
+      ]}
     >
-      {config.label}
-    </span>
-  )
+      <Text
+        style={[
+          styles.text,
+          {
+            color: binColor,
+            fontSize: currentSize.fontSize,
+          },
+        ]}
+      >
+        {label}
+      </Text>
+    </View>
+  );
 }
+
+const styles = StyleSheet.create({
+  badge: {
+    borderWidth: 1,
+    alignSelf: 'flex-start',
+  },
+  text: {
+    fontWeight: '600',
+  },
+});

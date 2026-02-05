@@ -1,63 +1,136 @@
-import { Card } from '@/components/ui/card'
-import { Trash, Recycle, Plant, Coffee } from '@phosphor-icons/react'
-import { formatDate, getDaysUntil } from '@/lib/dates'
-import type { BinType } from '@/lib/types'
+import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import { BinType, getBinTypeName, getBinColorKey } from '../types';
+import { formatDate, formatDaysUntil } from '../utils';
+import { useTheme } from '../theme';
+import { Card } from './Card';
+import { Trash2, Recycle, Leaf, UtensilsCrossed, Building2 } from 'lucide-react-native';
 
 interface CollectionCardProps {
-  binType: BinType
-  nextDate: Date
+  binType: BinType;
+  date: Date;
+  daysUntil: number;
+  compact?: boolean;
 }
 
-const binConfig = {
-  rubbish: {
-    label: 'Rubbish bin',
-    icon: Trash,
-    color: 'text-[oklch(0.13_0_0)]',
-    bgColor: 'bg-[oklch(0.13_0_0)]/5',
-  },
-  recycling: {
-    label: 'Recycling bin',
-    icon: Recycle,
-    color: 'text-[oklch(0.52_0.11_254)]',
-    bgColor: 'bg-[oklch(0.52_0.11_254)]/5',
-  },
-  garden: {
-    label: 'Garden waste bin',
-    icon: Plant,
-    color: 'text-[oklch(0.45_0.13_163)]',
-    bgColor: 'bg-[oklch(0.45_0.13_163)]/5',
-  },
-  food: {
-    label: 'Food waste bin',
-    icon: Coffee,
-    color: 'text-[oklch(0.35_0.08_60)]',
-    bgColor: 'bg-[oklch(0.35_0.08_60)]/5',
-  },
-}
+export function CollectionCard({ binType, date, daysUntil, compact = false }: CollectionCardProps) {
+  const { colors, spacing } = useTheme();
+  const colorKey = getBinColorKey(binType);
+  const binColor = colors[colorKey];
+  const binName = getBinTypeName(binType);
 
-export function CollectionCard({ binType, nextDate }: CollectionCardProps) {
-  const config = binConfig[binType]
-  const Icon = config.icon
-  const daysUntil = getDaysUntil(nextDate)
-  
-  const getTimeText = () => {
-    if (daysUntil === 0) return 'Today'
-    if (daysUntil === 1) return 'Tomorrow'
-    return `In ${daysUntil} days`
-  }
-  
+  const getIcon = () => {
+    const iconProps = { size: compact ? 20 : 24, color: binColor, strokeWidth: 2 };
+    switch (binType) {
+      case BinType.GENERAL:
+        return <Trash2 {...iconProps} />;
+      case BinType.RECYCLING:
+        return <Recycle {...iconProps} />;
+      case BinType.GARDEN:
+        return <Leaf {...iconProps} />;
+      case BinType.FOOD:
+        return <UtensilsCrossed {...iconProps} />;
+      case BinType.RECYCLING_CENTRE:
+        return <Building2 {...iconProps} />;
+    }
+  };
+
+  const isUrgent = daysUntil <= 1;
+
+  const cardStyle = compact
+    ? { ...styles.card, ...styles.cardCompact, borderLeftColor: binColor, borderLeftWidth: 4 }
+    : { ...styles.card, borderLeftColor: binColor, borderLeftWidth: 4 };
+
   return (
-    <Card className={`p-4 transition-all hover:shadow-md ${config.bgColor} border-l-4 ${config.color.replace('text-', 'border-')}`}>
-      <div className="flex items-start gap-4">
-        <div className={`p-3 rounded-lg ${config.bgColor}`}>
-          <Icon size={32} weight="duotone" className={config.color} />
-        </div>
-        <div className="flex-1">
-          <h3 className="font-semibold text-lg mb-1">{config.label}</h3>
-          <p className="text-2xl font-bold mb-1">{getTimeText()}</p>
-          <p className="text-muted-foreground">{formatDate(nextDate)}</p>
-        </div>
-      </div>
+    <Card style={cardStyle}>
+      <View style={styles.iconContainer}>{getIcon()}</View>
+
+      <View style={styles.content}>
+        <Text
+          style={[
+            styles.binName,
+            { color: colors.text },
+            compact && styles.binNameCompact,
+          ]}
+        >
+          {binName}
+        </Text>
+        <Text
+          style={[
+            styles.date,
+            { color: colors.textSecondary },
+            compact && styles.dateCompact,
+          ]}
+        >
+          {formatDate(date)}
+        </Text>
+      </View>
+
+      <View
+        style={[
+          styles.daysContainer,
+          {
+            backgroundColor: isUrgent ? binColor + '20' : colors.surfaceSecondary,
+          },
+        ]}
+      >
+        <Text
+          style={[
+            styles.daysText,
+            { color: isUrgent ? binColor : colors.textSecondary },
+            compact && styles.daysTextCompact,
+          ]}
+        >
+          {formatDaysUntil(daysUntil)}
+        </Text>
+      </View>
     </Card>
-  )
+  );
 }
+
+const styles = StyleSheet.create({
+  card: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 16,
+    paddingHorizontal: 16,
+    marginBottom: 12,
+  },
+  cardCompact: {
+    paddingVertical: 12,
+    paddingHorizontal: 12,
+    marginBottom: 8,
+  },
+  iconContainer: {
+    marginRight: 12,
+  },
+  content: {
+    flex: 1,
+  },
+  binName: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 2,
+  },
+  binNameCompact: {
+    fontSize: 14,
+  },
+  date: {
+    fontSize: 14,
+  },
+  dateCompact: {
+    fontSize: 12,
+  },
+  daysContainer: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 16,
+  },
+  daysText: {
+    fontSize: 13,
+    fontWeight: '600',
+  },
+  daysTextCompact: {
+    fontSize: 11,
+  },
+});
