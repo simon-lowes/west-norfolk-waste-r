@@ -8,7 +8,7 @@ import {
   Pressable,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTheme } from '../theme';
+import { useTheme, areFontsLoaded, typography } from '../theme';
 import { useProperty, useCollections, useAlerts, useDismissedAlerts } from '../hooks';
 import { Card, CollectionCard, HeroCollectionCard, AlertCard, EmptyState, Button } from '../components';
 import { MapPin, Calendar, Bell, ChevronRight, Search, Sparkles } from 'lucide-react-native';
@@ -50,7 +50,11 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
       >
         {/* Header */}
         <View style={styles.header}>
-          <Text style={[styles.title, { color: colors.text }]}>
+          <Text style={[
+            styles.title,
+            { color: colors.text },
+            areFontsLoaded() && { fontFamily: typography.fontFamily.headline }
+          ]}>
             West Norfolk Waste
           </Text>
           <Text style={[styles.subtitle, { color: colors.textSecondary }]}>
@@ -151,13 +155,14 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
                   </Text>
                 </View>
 
-                {remainingCollections.map((collection) => (
+                {remainingCollections.map((collection, index) => (
                   <CollectionCard
                     key={collection.binType}
                     binType={collection.binType}
                     date={collection.date}
                     daysUntil={collection.daysUntil}
                     compact
+                    index={index}
                   />
                 ))}
 
@@ -175,11 +180,11 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
           <View style={styles.emptyStateContainer}>
             <EmptyState
               icon={<Sparkles size={48} color={colors.primary} strokeWidth={1.5} />}
-              title="Welcome!"
-              message="Select your property to see your bin collection schedule and get reminders."
+              title="Hey there!"
+              message="Let's find your bin days. It only takes a sec!"
               action={
                 <Button
-                  title="Select Property"
+                  title="Find My Property"
                   onPress={() => navigation.navigate('More', { screen: 'Settings' })}
                 />
               }

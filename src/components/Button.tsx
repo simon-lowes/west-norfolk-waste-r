@@ -1,6 +1,8 @@
-import React, { ReactNode } from 'react';
-import { Pressable, Text, StyleSheet, ViewStyle, TextStyle, ActivityIndicator } from 'react-native';
+import React, { ReactNode, useRef } from 'react';
+import { Pressable, Text, StyleSheet, ViewStyle, TextStyle, ActivityIndicator, Animated, Platform } from 'react-native';
+import * as Haptics from 'expo-haptics';
 import { useTheme } from '../theme';
+import { createPressAnimation } from '../utils';
 
 interface ButtonProps {
   title: string;
@@ -11,6 +13,7 @@ interface ButtonProps {
   loading?: boolean;
   icon?: ReactNode;
   style?: ViewStyle;
+  hapticFeedback?: boolean;
 }
 
 export function Button({
@@ -22,8 +25,21 @@ export function Button({
   loading = false,
   icon,
   style,
+  hapticFeedback = true,
 }: ButtonProps) {
   const { colors, layout } = useTheme();
+  const scaleValue = useRef(new Animated.Value(1)).current;
+
+  const { onPressIn, onPressOut } = createPressAnimation(scaleValue, 0.96);
+
+  const handlePress = () => {
+    if (!disabled && !loading) {
+      if (hapticFeedback && Platform.OS !== 'web') {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      }
+      onPress();
+    }
+  };
 
   const getSizeStyles = (): { button: ViewStyle; text: TextStyle } => {
     switch (size) {
@@ -87,40 +103,43 @@ export function Button({
   const variantStyles = getVariantStyles();
 
   return (
-    <Pressable
-      onPress={onPress}
-      disabled={disabled || loading}
-      style={({ pressed }) => [
-        styles.button,
-        { borderRadius: layout.radiusMedium },
-        sizeStyles.button,
-        variantStyles.button,
-        disabled && styles.disabled,
-        pressed && styles.pressed,
-        style,
-      ]}
-    >
-      {loading ? (
-        <ActivityIndicator
-          size="small"
-          color={variant === 'primary' ? '#FFFFFF' : colors.primary}
-        />
-      ) : (
-        <>
-          {icon}
-          <Text
-            style={[
-              styles.text,
-              sizeStyles.text,
-              variantStyles.text,
-              icon ? styles.textWithIcon : undefined,
-            ]}
-          >
-            {title}
-          </Text>
-        </>
-      )}
-    </Pressable>
+    <Animated.View style={{ transform: [{ scale: scaleValue }] }}>
+      <Pressable
+        onPress={handlePress}
+        onPressIn={onPressIn}
+        onPressOut={onPressOut}
+        disabled={disabled || loading}
+        style={[
+          styles.button,
+          { borderRadius: layout.radiusMedium },
+          sizeStyles.button,
+          variantStyles.button,
+          disabled && styles.disabled,
+          style,
+        ]}
+      >
+        {loading ? (
+          <ActivityIndicator
+            size="small"
+            color={variant === 'primary' ? '#FFFFFF' : colors.primary}
+          />
+        ) : (
+          <>
+            {icon}
+            <Text
+              style={[
+                styles.text,
+                sizeStyles.text,
+                variantStyles.text,
+                icon ? styles.textWithIcon : undefined,
+              ]}
+            >
+              {title}
+            </Text>
+          </>
+        )}
+      </Pressable>
+    </Animated.View>
   );
 }
 
@@ -138,8 +157,5 @@ const styles = StyleSheet.create({
   },
   disabled: {
     opacity: 0.5,
-  },
-  pressed: {
-    opacity: 0.8,
   },
 });

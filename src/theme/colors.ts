@@ -1,20 +1,20 @@
 // West Norfolk Waste - Color Theme
-// Modern clean utility design inspired by Stripe/Linear
+// Warm, inviting design that feels delightful to use
 
 export const lightColors = {
-  // Base
-  background: '#FAFAFA',
+  // Base - Warm cream instead of cold gray
+  background: '#FFF9F5',
   surface: '#FFFFFF',
-  surfaceSecondary: '#F5F5F5',
+  surfaceSecondary: '#FEF6F0',
 
-  // Text
-  text: '#1A1A1A',
-  textSecondary: '#6B7280',
-  textTertiary: '#9CA3AF',
+  // Text - Stone tones for warmth
+  text: '#292524',        // Stone-800 - softer than pure black
+  textSecondary: '#78716C', // Stone-500
+  textTertiary: '#A8A29E', // Stone-400
 
   // Borders
-  border: '#E5E7EB',
-  borderLight: '#F3F4F6',
+  border: '#E7E5E4',      // Stone-200
+  borderLight: '#F5F5F4', // Stone-100
 
   // Bin Colors - Main accent colors for waste types
   rubbish: '#374151',      // Gray-700 - General waste
@@ -28,30 +28,34 @@ export const lightColors = {
   alertWarning: '#F59E0B', // Amber-500
   alertInfo: '#3B82F6',    // Blue-500
 
-  // Actions
-  primary: '#2563EB',
-  primaryHover: '#1D4ED8',
+  // Actions - Warm orange as primary for energy
+  primary: '#F97316',      // Orange-500 - warm and inviting
+  primaryHover: '#EA580C', // Orange-600
   success: '#16A34A',
   error: '#DC2626',
+
+  // Accent colors
+  accent: '#F97316',       // Same as primary for consistency
+  accentSoft: '#FFEDD5',   // Orange-100 - subtle highlight backgrounds
 
   // Shadows
   shadowColor: '#000000',
 };
 
 export const darkColors = {
-  // Base
-  background: '#0F0F0F',
-  surface: '#1A1A1A',
-  surfaceSecondary: '#262626',
+  // Base - Warmer dark tones
+  background: '#1C1917',   // Stone-900
+  surface: '#292524',      // Stone-800
+  surfaceSecondary: '#3C3836',
 
   // Text
-  text: '#FAFAFA',
-  textSecondary: '#A1A1AA',
-  textTertiary: '#71717A',
+  text: '#FAFAF9',         // Stone-50
+  textSecondary: '#A8A29E', // Stone-400
+  textTertiary: '#78716C', // Stone-500
 
   // Borders
-  border: '#3F3F46',
-  borderLight: '#27272A',
+  border: '#44403C',       // Stone-700
+  borderLight: '#3C3836',
 
   // Bin Colors - Brighter for dark mode
   rubbish: '#9CA3AF',      // Gray-400
@@ -65,11 +69,15 @@ export const darkColors = {
   alertWarning: '#FBBF24', // Amber-400
   alertInfo: '#60A5FA',    // Blue-400
 
-  // Actions
-  primary: '#60A5FA',
-  primaryHover: '#3B82F6',
+  // Actions - Warm orange in dark mode too
+  primary: '#FB923C',      // Orange-400 - warm for dark mode
+  primaryHover: '#F97316', // Orange-500
   success: '#4ADE80',
   error: '#F87171',
+
+  // Accent colors
+  accent: '#FB923C',       // Orange-400
+  accentSoft: '#431407',   // Orange-950 - dark subtle highlight
 
   // Shadows
   shadowColor: '#000000',

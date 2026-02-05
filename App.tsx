@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useCallback, useEffect } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { useFonts, Nunito_700Bold } from '@expo-google-fonts/nunito';
+import * as SplashScreen from 'expo-splash-screen';
 import {
   Home,
   Calendar,
@@ -12,7 +14,13 @@ import {
   MoreHorizontal,
 } from 'lucide-react-native';
 
-import { ThemeProvider, useTheme } from './src/theme';
+import { ThemeProvider, useTheme, setFontsLoaded } from './src/theme';
+import { DevModeProvider } from './src/context/DevModeContext';
+
+// Keep the splash screen visible while we fetch fonts
+SplashScreen.preventAutoHideAsync().catch(() => {
+  // Ignore errors - splash may already be hidden
+});
 import {
   HomeScreen,
   FindBinDayScreen,
@@ -126,11 +134,28 @@ function AppNavigator() {
 }
 
 export default function App() {
+  const [fontsLoaded] = useFonts({
+    Nunito_700Bold,
+  });
+
+  useEffect(() => {
+    if (fontsLoaded) {
+      setFontsLoaded(true);
+      SplashScreen.hideAsync();
+    }
+  }, [fontsLoaded]);
+
+  if (!fontsLoaded) {
+    return null;
+  }
+
   return (
     <SafeAreaProvider>
-      <ThemeProvider>
-        <AppNavigator />
-      </ThemeProvider>
+      <DevModeProvider>
+        <ThemeProvider>
+          <AppNavigator />
+        </ThemeProvider>
+      </DevModeProvider>
     </SafeAreaProvider>
   );
 }

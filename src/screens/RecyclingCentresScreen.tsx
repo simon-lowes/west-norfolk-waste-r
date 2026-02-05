@@ -8,7 +8,7 @@ import {
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { useTheme } from '../theme';
+import { useTheme, areFontsLoaded, typography } from '../theme';
 import { useLocation } from '../hooks';
 import { mockRecyclingCentres } from '../data';
 import { RecyclingCentre } from '../types';
@@ -138,7 +138,11 @@ export function RecyclingCentresScreen() {
     <SafeAreaView style={[styles.container, { backgroundColor: colors.background }]} edges={['top']}>
       {/* Header */}
       <View style={styles.header}>
-        <Text style={[styles.title, { color: colors.text }]}>
+        <Text style={[
+          styles.title,
+          { color: colors.text },
+          areFontsLoaded() && { fontFamily: typography.fontFamily.headline }
+        ]}>
           Recycling Centres
         </Text>
         <Text style={[styles.subtitle, { color: colors.textSecondary }]}>

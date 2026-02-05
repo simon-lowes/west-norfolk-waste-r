@@ -1,7 +1,7 @@
-import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import React, { useRef, useEffect } from 'react';
+import { View, Text, StyleSheet, Animated } from 'react-native';
 import { BinType, getBinTypeName, getBinColorKey } from '../types';
-import { formatDate, formatDaysUntil } from '../utils';
+import { formatDate, formatDaysUntil, createEntranceAnimation } from '../utils';
 import { useTheme } from '../theme';
 import { Card } from './Card';
 import { Trash2, Recycle, Leaf, UtensilsCrossed, Building2 } from 'lucide-react-native';
@@ -11,10 +11,19 @@ interface CollectionCardProps {
   date: Date;
   daysUntil: number;
   compact?: boolean;
+  index?: number; // For staggered entrance animation
 }
 
-export function CollectionCard({ binType, date, daysUntil, compact = false }: CollectionCardProps) {
+export function CollectionCard({ binType, date, daysUntil, compact = false, index = 0 }: CollectionCardProps) {
   const { colors, spacing } = useTheme();
+  const opacity = useRef(new Animated.Value(0)).current;
+  const translateY = useRef(new Animated.Value(20)).current;
+
+  // Staggered entrance animation
+  useEffect(() => {
+    const { start } = createEntranceAnimation(opacity, translateY, index * 100);
+    start();
+  }, [index, opacity, translateY]);
   const colorKey = getBinColorKey(binType);
   const binColor = colors[colorKey];
   const binName = getBinTypeName(binType);
@@ -42,49 +51,56 @@ export function CollectionCard({ binType, date, daysUntil, compact = false }: Co
     : { ...styles.card, borderLeftColor: binColor, borderLeftWidth: 4 };
 
   return (
-    <Card style={cardStyle}>
-      <View style={styles.iconContainer}>{getIcon()}</View>
+    <Animated.View
+      style={{
+        opacity,
+        transform: [{ translateY }],
+      }}
+    >
+      <Card style={cardStyle}>
+        <View style={styles.iconContainer}>{getIcon()}</View>
 
-      <View style={styles.content}>
-        <Text
-          style={[
-            styles.binName,
-            { color: colors.text },
-            compact && styles.binNameCompact,
-          ]}
-        >
-          {binName}
-        </Text>
-        <Text
-          style={[
-            styles.date,
-            { color: colors.textSecondary },
-            compact && styles.dateCompact,
-          ]}
-        >
-          {formatDate(date)}
-        </Text>
-      </View>
+        <View style={styles.content}>
+          <Text
+            style={[
+              styles.binName,
+              { color: colors.text },
+              compact && styles.binNameCompact,
+            ]}
+          >
+            {binName}
+          </Text>
+          <Text
+            style={[
+              styles.date,
+              { color: colors.textSecondary },
+              compact && styles.dateCompact,
+            ]}
+          >
+            {formatDate(date)}
+          </Text>
+        </View>
 
-      <View
-        style={[
-          styles.daysContainer,
-          {
-            backgroundColor: isUrgent ? binColor + '20' : colors.surfaceSecondary,
-          },
-        ]}
-      >
-        <Text
+        <View
           style={[
-            styles.daysText,
-            { color: isUrgent ? binColor : colors.textSecondary },
-            compact && styles.daysTextCompact,
+            styles.daysContainer,
+            {
+              backgroundColor: isUrgent ? binColor + '20' : colors.surfaceSecondary,
+            },
           ]}
         >
-          {formatDaysUntil(daysUntil)}
-        </Text>
-      </View>
-    </Card>
+          <Text
+            style={[
+              styles.daysText,
+              { color: isUrgent ? binColor : colors.textSecondary },
+              compact && styles.daysTextCompact,
+            ]}
+          >
+            {formatDaysUntil(daysUntil)}
+          </Text>
+        </View>
+      </Card>
+    </Animated.View>
   );
 }
 

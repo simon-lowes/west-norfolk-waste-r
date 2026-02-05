@@ -16,3 +16,13 @@ export {
   formatDistanceMiles,
   sortByDistance,
 } from './distanceUtils';
+
+export {
+  springConfigs,
+  createPressAnimation,
+  createPulseAnimation,
+  createEntranceAnimation,
+  createSwipeDismissAnimation,
+  createBounceAnimation,
+  hapticIntensity,
+} from './animations';
