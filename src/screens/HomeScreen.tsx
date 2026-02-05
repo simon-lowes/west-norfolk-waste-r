@@ -11,7 +11,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme, areFontsLoaded, typography } from '../theme';
 import { useProperty, useCollections, useAlerts, useDismissedAlerts } from '../hooks';
 import { Card, CollectionCard, HeroCollectionCard, AlertCard, EmptyState, Button } from '../components';
-import { MapPin, Calendar, Bell, ChevronRight, Search, Sparkles } from 'lucide-react-native';
+import { MapPin, Calendar, Bell, ChevronRight, Search } from 'lucide-react-native';
 import type { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
 
 type HomeScreenProps = {
@@ -179,7 +179,7 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
           /* Empty State for no property */
           <View style={styles.emptyStateContainer}>
             <EmptyState
-              icon={<Sparkles size={48} color={colors.primary} strokeWidth={1.5} />}
+              icon={<Calendar size={48} color={colors.primary} strokeWidth={1.5} />}
               title="Hey there!"
               message="Let's find your bin days. It only takes a sec!"
               action={

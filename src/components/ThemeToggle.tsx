@@ -1,18 +1,33 @@
 import React from 'react';
-import { View, Text, StyleSheet, Pressable } from 'react-native';
-import { useTheme } from '../theme';
-import { Sun, Moon } from 'lucide-react-native';
+import { View, Text, StyleSheet, Pressable, Platform } from 'react-native';
+import * as Haptics from 'expo-haptics';
+import { useTheme, ThemePreference } from '../theme';
+import { Sun, Moon, Smartphone } from 'lucide-react-native';
 
 interface ThemeToggleProps {
   showLabel?: boolean;
 }
 
+const THEME_OPTIONS: { value: ThemePreference; icon: typeof Sun; label: string }[] = [
+  { value: 'system', icon: Smartphone, label: 'Auto' },
+  { value: 'light', icon: Sun, label: 'Light' },
+  { value: 'dark', icon: Moon, label: 'Dark' },
+];
+
 export function ThemeToggle({ showLabel = true }: ThemeToggleProps) {
-  const { colors, layout, isDark, toggleTheme } = useTheme();
+  const { colors, layout, preference, setThemePreference } = useTheme();
+
+  const handlePress = (newPreference: ThemePreference) => {
+    if (newPreference !== preference) {
+      if (Platform.OS !== 'web') {
+        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+      }
+      setThemePreference(newPreference);
+    }
+  };
 
   return (
-    <Pressable
-      onPress={toggleTheme}
+    <View
       style={[
         styles.container,
         {
@@ -21,58 +36,56 @@ export function ThemeToggle({ showLabel = true }: ThemeToggleProps) {
         },
       ]}
     >
-      <View
-        style={[
-          styles.iconContainer,
-          {
-            backgroundColor: isDark ? colors.surface : 'transparent',
-            borderRadius: layout.radiusSmall,
-          },
-        ]}
-      >
-        <Moon
-          size={18}
-          color={isDark ? colors.primary : colors.textTertiary}
-          strokeWidth={2}
-        />
-      </View>
-      <View
-        style={[
-          styles.iconContainer,
-          {
-            backgroundColor: !isDark ? colors.surface : 'transparent',
-            borderRadius: layout.radiusSmall,
-          },
-        ]}
-      >
-        <Sun
-          size={18}
-          color={!isDark ? colors.primary : colors.textTertiary}
-          strokeWidth={2}
-        />
-      </View>
-      {showLabel && (
-        <Text style={[styles.label, { color: colors.textSecondary }]}>
-          {isDark ? 'Dark' : 'Light'}
-        </Text>
-      )}
-    </Pressable>
+      {THEME_OPTIONS.map(({ value, icon: Icon, label }) => {
+        const isSelected = preference === value;
+        return (
+          <Pressable
+            key={value}
+            onPress={() => handlePress(value)}
+            style={[
+              styles.option,
+              {
+                backgroundColor: isSelected ? colors.surface : 'transparent',
+                borderRadius: layout.radiusSmall,
+              },
+            ]}
+          >
+            <Icon
+              size={16}
+              color={isSelected ? colors.primary : colors.textTertiary}
+              strokeWidth={2}
+            />
+            {showLabel && (
+              <Text
+                style={[
+                  styles.label,
+                  { color: isSelected ? colors.primary : colors.textTertiary },
+                ]}
+              >
+                {label}
+              </Text>
+            )}
+          </Pressable>
+        );
+      })}
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flexDirection: 'row',
-    alignItems: 'center',
-    padding: 4,
+    padding: 3,
   },
-  iconContainer: {
-    padding: 8,
+  option: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 6,
+    paddingHorizontal: 10,
+    gap: 4,
   },
   label: {
-    marginLeft: 8,
-    marginRight: 8,
-    fontSize: 14,
+    fontSize: 12,
     fontWeight: '500',
   },
 });
