@@ -13,7 +13,7 @@ interface UseBankHolidaysResult {
  * Hook to get upcoming bank holidays
  * Automatically fetches on mount and caches results
  */
-export function useBankHolidays(): UseBankHolidaysResult {
+export function useBankHolidays(enabled: boolean = true): UseBankHolidaysResult {
   const [upcomingHoliday, setUpcomingHoliday] = useState<BankHoliday | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -32,8 +32,8 @@ export function useBankHolidays(): UseBankHolidaysResult {
   }, []);
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    if (enabled) fetchData();
+  }, [fetchData, enabled]);
 
   const daysUntilHoliday = upcomingHoliday ? getDaysUntilHoliday(upcomingHoliday) : null;
 

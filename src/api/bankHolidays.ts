@@ -36,6 +36,8 @@ export async function fetchBankHolidays(): Promise<BankHoliday[]> {
     return holidays;
   } catch (error) {
     console.warn('Bank holidays fetch skipped:', error);
+    // Cache empty result to avoid retry-spam on repeated mounts
+    await setCachedData(CACHE_KEY, []);
     return [];
   }
 }

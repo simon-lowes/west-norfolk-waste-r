@@ -13,7 +13,7 @@ interface UseWeatherWarningsResult {
  * Hook to get active weather warnings
  * Automatically fetches on mount and caches results
  */
-export function useWeatherWarnings(): UseWeatherWarningsResult {
+export function useWeatherWarnings(enabled: boolean = true): UseWeatherWarningsResult {
   const [activeWarnings, setActiveWarnings] = useState<WeatherWarning[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
@@ -32,8 +32,8 @@ export function useWeatherWarnings(): UseWeatherWarningsResult {
   }, []);
 
   useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+    if (enabled) fetchData();
+  }, [fetchData, enabled]);
 
   const hasSevereWarning = activeWarnings.some(
     (w) => w.severity === 'amber' || w.severity === 'red'
