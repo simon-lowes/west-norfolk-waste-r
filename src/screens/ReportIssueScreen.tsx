@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -26,6 +26,16 @@ export function ReportIssueScreen() {
   const [location, setLocation] = useState<{ latitude: number; longitude: number } | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const timerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Clean up timer on unmount
+  useEffect(() => {
+    return () => {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+      }
+    };
+  }, []);
 
   const reportTypes = [
     { type: ReportType.MISSED_COLLECTION, icon: Trash2, label: getReportTypeName(ReportType.MISSED_COLLECTION) },
@@ -47,7 +57,7 @@ export function ReportIssueScreen() {
     setIsSubmitting(true);
 
     // Simulate API call
-    setTimeout(() => {
+    timerRef.current = setTimeout(() => {
       setIsSubmitting(false);
       setIsSubmitted(true);
     }, 1000);
@@ -73,6 +83,9 @@ export function ReportIssueScreen() {
           </Text>
           <Text style={[styles.successMessage, { color: colors.textSecondary }]}>
             Thank you for reporting this issue. Our team will review it and take appropriate action.
+          </Text>
+          <Text style={[styles.demoNote, { color: colors.textTertiary }]}>
+            Note: This is a demo — reports are not currently submitted to the council.
           </Text>
           <Button
             title="Submit Another Report"
@@ -162,6 +175,7 @@ export function ReportIssueScreen() {
               placeholderTextColor={colors.textTertiary}
               multiline
               numberOfLines={4}
+              maxLength={1000}
               style={[styles.textInput, { color: colors.text }]}
               textAlignVertical="top"
             />
@@ -304,6 +318,14 @@ const styles = StyleSheet.create({
     fontSize: 15,
     textAlign: 'center',
     lineHeight: 22,
+    maxWidth: 300,
+  },
+  demoNote: {
+    fontSize: 13,
+    textAlign: 'center',
+    lineHeight: 18,
+    marginTop: 12,
+    fontStyle: 'italic',
     maxWidth: 300,
   },
   resetButton: {

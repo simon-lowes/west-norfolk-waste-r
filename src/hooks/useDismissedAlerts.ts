@@ -20,8 +20,10 @@ export function useDismissedAlerts(): UseDismissedAlertsResult {
       try {
         const saved = await AsyncStorage.getItem(DISMISSED_ALERTS_KEY);
         if (saved) {
-          const ids = JSON.parse(saved) as string[];
-          setDismissedAlertIds(new Set(ids));
+          const ids = JSON.parse(saved);
+          if (Array.isArray(ids)) {
+            setDismissedAlertIds(new Set(ids));
+          }
         }
       } catch (error) {
         console.warn('Failed to load dismissed alerts:', error);
@@ -36,7 +38,7 @@ export function useDismissedAlerts(): UseDismissedAlertsResult {
     try {
       await AsyncStorage.setItem(DISMISSED_ALERTS_KEY, JSON.stringify(Array.from(ids)));
     } catch (error) {
-      console.warn('Failed to save dismissed alerts:', error);
+      console.error('Failed to save dismissed alerts:', error);
     }
   }, []);
 

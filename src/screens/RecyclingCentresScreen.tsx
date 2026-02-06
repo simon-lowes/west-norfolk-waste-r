@@ -6,6 +6,7 @@ import {
   FlatList,
   Linking,
   Alert,
+  Platform,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTheme, areFontsLoaded, typography } from '../theme';
@@ -30,15 +31,19 @@ export function RecyclingCentresScreen() {
   }, [location]);
 
   const openDirections = (centre: RecyclingCentre) => {
-    const url = `https://maps.apple.com/?daddr=${centre.latitude},${centre.longitude}`;
-    Linking.openURL(url).catch(() => {
-      Alert.alert('Error', 'Could not open maps');
+    const url = Platform.select({
+      ios: `https://maps.apple.com/?daddr=${centre.latitude},${centre.longitude}`,
+      android: `https://www.google.com/maps/dir/?api=1&destination=${centre.latitude},${centre.longitude}`,
+      default: `https://www.google.com/maps/dir/?api=1&destination=${centre.latitude},${centre.longitude}`,
+    })!;
+    Linking.openURL(url).catch((error) => {
+      Alert.alert('Unable to open maps', `Could not launch your maps app. Try searching for the location manually.\n\nDetails: ${error?.message ?? error}`);
     });
   };
 
   const callCentre = (phoneNumber: string) => {
-    Linking.openURL(`tel:${phoneNumber}`).catch(() => {
-      Alert.alert('Error', 'Could not make call');
+    Linking.openURL(`tel:${phoneNumber}`).catch((error) => {
+      Alert.alert('Unable to make call', `Could not open the phone dialler. The number is: ${phoneNumber}\n\nDetails: ${error?.message ?? error}`);
     });
   };
 

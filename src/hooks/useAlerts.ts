@@ -14,6 +14,7 @@ interface UseAlertsResult {
   alertCount: number;
   hasUrgentAlerts: boolean;
   isLoading: boolean;
+  refetch: () => void;
 }
 
 /**
@@ -78,8 +79,13 @@ function generateWeatherAlert(warning: WeatherWarning): ServiceAlert {
 
 export function useAlerts(postcode: string | null): UseAlertsResult {
   const { isDemoMode } = useDevMode();
-  const { upcomingHoliday, daysUntilHoliday, isLoading: holidaysLoading } = useBankHolidays();
-  const { activeWarnings, isLoading: warningsLoading } = useWeatherWarnings();
+  const { upcomingHoliday, daysUntilHoliday, isLoading: holidaysLoading, refetch: refetchHolidays } = useBankHolidays();
+  const { activeWarnings, isLoading: warningsLoading, refetch: refetchWarnings } = useWeatherWarnings();
+
+  const refetch = () => {
+    refetchHolidays();
+    refetchWarnings();
+  };
 
   const alerts = useMemo(() => {
     // In demo mode, return all mock alerts for council demonstrations
@@ -143,5 +149,6 @@ export function useAlerts(postcode: string | null): UseAlertsResult {
     alertCount: alerts.length,
     hasUrgentAlerts: urgentAlerts.length > 0,
     isLoading: !isDemoMode && (holidaysLoading || warningsLoading),
+    refetch,
   };
 }

@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { useColorScheme, Appearance } from 'react-native';
+import { useColorScheme } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { lightColors, darkColors, ColorTheme } from './colors';
 import { typography, Typography } from './typography';
@@ -69,23 +69,13 @@ export function ThemeProvider({ children }: ThemeProviderProps) {
     loadTheme();
   }, []);
 
-  // Listen for system theme changes (only affects UI when preference is 'system')
-  useEffect(() => {
-    const subscription = Appearance.addChangeListener(({ colorScheme }) => {
-      // Force re-render when system theme changes
-      // This is handled automatically by useColorScheme(), but we keep the listener
-      // for any additional side effects if needed in the future
-    });
-    return () => subscription.remove();
-  }, []);
-
   // Set theme preference and save to storage
   const setThemePreference = async (newPreference: ThemePreference) => {
     setPreferenceState(newPreference);
     try {
       await AsyncStorage.setItem(THEME_STORAGE_KEY, newPreference);
     } catch (error) {
-      console.warn('Failed to save theme preference:', error);
+      console.error('Failed to save theme preference:', error);
     }
   };
 
