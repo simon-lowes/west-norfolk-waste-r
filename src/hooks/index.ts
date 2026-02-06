@@ -7,3 +7,4 @@ export { useLocation } from './useLocation';
 export { useDevMode } from './useDevMode';
 export { useBankHolidays } from './useBankHolidays';
 export { useWeatherWarnings } from './useWeatherWarnings';
+export { useNotifications } from './useNotifications';

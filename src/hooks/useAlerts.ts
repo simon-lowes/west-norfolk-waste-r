@@ -79,8 +79,8 @@ function generateWeatherAlert(warning: WeatherWarning): ServiceAlert {
 
 export function useAlerts(postcode: string | null): UseAlertsResult {
   const { isDemoMode } = useDevMode();
-  const { upcomingHoliday, daysUntilHoliday, isLoading: holidaysLoading, refetch: refetchHolidays } = useBankHolidays();
-  const { activeWarnings, isLoading: warningsLoading, refetch: refetchWarnings } = useWeatherWarnings();
+  const { upcomingHoliday, daysUntilHoliday, isLoading: holidaysLoading, refetch: refetchHolidays } = useBankHolidays(!isDemoMode);
+  const { activeWarnings, isLoading: warningsLoading, refetch: refetchWarnings } = useWeatherWarnings(!isDemoMode);
 
   const refetch = () => {
     refetchHolidays();

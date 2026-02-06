@@ -120,6 +120,8 @@ export async function fetchWeatherWarnings(): Promise<WeatherWarning[]> {
     return warnings;
   } catch (error) {
     console.warn('Weather warnings fetch skipped:', error);
+    // Cache empty result to avoid retry-spam on repeated mounts
+    await setCachedData(CACHE_KEY, []);
     return [];
   }
 }

@@ -1,4 +1,5 @@
 import React, { useEffect, useRef } from 'react';
+import { Platform } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
@@ -21,6 +22,18 @@ import { DevModeProvider } from './src/context/DevModeContext';
 SplashScreen.preventAutoHideAsync().catch(() => {
   // Ignore errors - splash may already be hidden
 });
+
+// Show notifications when app is in foreground
+if (Platform.OS !== 'web') {
+  const Notifications = require('expo-notifications');
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: false,
+    }),
+  });
+}
 import {
   HomeScreen,
   FindBinDayScreen,
