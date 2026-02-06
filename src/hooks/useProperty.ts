@@ -47,7 +47,7 @@ export function useProperty(): UsePropertyResult {
         await AsyncStorage.removeItem(PROPERTY_STORAGE_KEY);
       }
     } catch (error) {
-      console.warn('Failed to save property selection:', error);
+      console.error('Failed to save property selection:', error);
     }
   }, []);
 

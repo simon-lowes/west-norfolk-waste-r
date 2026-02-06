@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import {
   View,
   Text,
@@ -43,6 +43,15 @@ export function SettingsScreen() {
   const [showDevMode, setShowDevMode] = useState(false);
   const tapCountRef = useRef(0);
   const tapTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Clean up timer on unmount
+  useEffect(() => {
+    return () => {
+      if (tapTimerRef.current) {
+        clearTimeout(tapTimerRef.current);
+      }
+    };
+  }, []);
 
   // Handle taps on version to reveal dev mode
   const handleVersionTap = () => {

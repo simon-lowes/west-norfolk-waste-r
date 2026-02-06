@@ -33,6 +33,26 @@ function isInWestNorfolk(lat: number, lon: number): boolean {
 }
 
 /**
+ * Flatten nested coordinate arrays (Polygon or MultiPolygon) into [lon, lat] pairs
+ */
+function flattenCoordinates(coords: number[][][] | number[][][][]): number[][] {
+  const result: number[][] = [];
+  const flatten = (arr: unknown): void => {
+    if (!Array.isArray(arr)) return;
+    // A coordinate pair is [number, number]
+    if (arr.length >= 2 && typeof arr[0] === 'number' && typeof arr[1] === 'number') {
+      result.push(arr as number[]);
+      return;
+    }
+    for (const item of arr) {
+      flatten(item);
+    }
+  };
+  flatten(coords);
+  return result;
+}
+
+/**
  * Map Met Office severity to our severity type
  */
 function mapSeverity(metOfficeSeverity: string): WeatherSeverity {
@@ -64,8 +84,7 @@ export async function fetchWeatherWarnings(): Promise<WeatherWarning[]> {
     });
 
     if (!response.ok) {
-      // Expected to fail without proper API access - fail silently
-      return [];
+      throw new Error(`Weather warnings HTTP ${response.status}`);
     }
 
     const data: MetOfficeWarningsResponse = await response.json();
@@ -73,12 +92,20 @@ export async function fetchWeatherWarnings(): Promise<WeatherWarning[]> {
     // Filter and transform warnings
     const warnings: WeatherWarning[] = data.features
       .filter((feature) => {
-        // Check if warning affects West Norfolk area
-        // This is a simplified check - real implementation would use proper geospatial logic
-        return true; // For now, include all warnings as a demonstration
+        // Check if warning affects West Norfolk area using bounding box overlap
+        // Flatten all coordinate arrays to get individual [lon, lat] points
+        try {
+          const coords = feature.geometry.coordinates;
+          const flatCoords = flattenCoordinates(coords);
+          // GeoJSON coordinates are [longitude, latitude] order (RFC 7946)
+          return flatCoords.some(([lon, lat]) => isInWestNorfolk(lat, lon));
+        } catch {
+          // If geometry parsing fails, include the warning to be safe
+          return true;
+        }
       })
-      .map((feature, index) => ({
-        id: `met-warning-${index}-${feature.properties.valid_from}`,
+      .map((feature) => ({
+        id: `met-warning-${feature.properties.type}-${feature.properties.severity}-${feature.properties.valid_from}-${feature.properties.valid_to}`,
         title: feature.properties.title || `${feature.properties.type} Warning`,
         description: feature.properties.description,
         severity: mapSeverity(feature.properties.severity),
@@ -92,9 +119,8 @@ export async function fetchWeatherWarnings(): Promise<WeatherWarning[]> {
 
     return warnings;
   } catch (error) {
-    // Expected to fail in development - log but don't crash
-    console.debug('Weather warnings fetch failed (expected without API access):', error);
-    return [];
+    console.error('Weather warnings fetch failed:', error);
+    throw error;
   }
 }
 

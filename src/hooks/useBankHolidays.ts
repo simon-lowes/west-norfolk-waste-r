@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { BankHoliday, getNextBankHoliday, getDaysUntilHoliday } from '../api';
 
 interface UseBankHolidaysResult {
@@ -18,7 +18,7 @@ export function useBankHolidays(): UseBankHolidaysResult {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
@@ -29,11 +29,11 @@ export function useBankHolidays(): UseBankHolidaysResult {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   const daysUntilHoliday = upcomingHoliday ? getDaysUntilHoliday(upcomingHoliday) : null;
 

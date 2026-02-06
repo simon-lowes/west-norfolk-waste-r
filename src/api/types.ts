@@ -18,7 +18,14 @@ export async function getCachedData<T>(key: string, maxAgeMs: number): Promise<T
     const cached = await AsyncStorage.getItem(key);
     if (!cached) return null;
 
-    const entry: CacheEntry<T> = JSON.parse(cached);
+    const entry = JSON.parse(cached);
+
+    // Validate cache entry structure
+    if (!entry || typeof entry.timestamp !== 'number' || !('data' in entry)) {
+      await AsyncStorage.removeItem(key);
+      return null;
+    }
+
     const age = Date.now() - entry.timestamp;
 
     if (age > maxAgeMs) {

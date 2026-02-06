@@ -22,15 +22,17 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
   const { colors, layout } = useTheme();
   const { selectedProperty } = useProperty();
   const { collections, nextCollection } = useCollections(selectedProperty);
-  const { alerts } = useAlerts(selectedProperty?.postcode ?? null);
+  const { alerts, refetch: refetchAlerts } = useAlerts(selectedProperty?.postcode ?? null);
   const { isAlertDismissed, dismissAlert } = useDismissedAlerts();
 
   const [refreshing, setRefreshing] = React.useState(false);
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
-    setTimeout(() => setRefreshing(false), 500);
-  }, []);
+    refetchAlerts();
+    // Allow a short delay so the spinner is visible and data has time to propagate
+    setTimeout(() => setRefreshing(false), 800);
+  }, [refetchAlerts]);
 
   // Filter visible alerts
   const visibleAlerts = alerts.filter((a) => !isAlertDismissed(a.id)).slice(0, 2);

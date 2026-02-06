@@ -17,8 +17,8 @@ export function getNextCollectionDate(dayOfWeek: number, fromDate: Date = new Da
   const currentDay = result.getDay();
   let daysUntil = dayOfWeek - currentDay;
 
-  // If the day has passed this week, or it's today, go to next week
-  if (daysUntil <= 0) {
+  // If the day has passed this week, go to next week
+  if (daysUntil < 0) {
     daysUntil += 7;
   }
 
