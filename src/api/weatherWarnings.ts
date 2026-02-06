@@ -119,8 +119,8 @@ export async function fetchWeatherWarnings(): Promise<WeatherWarning[]> {
 
     return warnings;
   } catch (error) {
-    console.error('Weather warnings fetch failed:', error);
-    throw error;
+    console.warn('Weather warnings fetch skipped:', error);
+    return [];
   }
 }
 

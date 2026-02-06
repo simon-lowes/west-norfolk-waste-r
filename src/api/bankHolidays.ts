@@ -35,8 +35,8 @@ export async function fetchBankHolidays(): Promise<BankHoliday[]> {
 
     return holidays;
   } catch (error) {
-    console.error('Failed to fetch bank holidays:', error);
-    throw error;
+    console.warn('Bank holidays fetch skipped:', error);
+    return [];
   }
 }
 
