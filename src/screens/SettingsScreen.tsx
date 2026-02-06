@@ -17,7 +17,8 @@ import { useTheme, areFontsLoaded, typography, ThemePreference } from '../theme'
 import { useProperty, useDevMode } from '../hooks';
 import { Property } from '../types';
 import { Card, ThemeToggle, Button, SearchInput } from '../components';
-import { MapPin, Check, X, ChevronRight, Palette, FlaskConical } from 'lucide-react-native';
+import { MapPin, Check, X, ChevronRight, Palette, FlaskConical, Bell } from 'lucide-react-native';
+import { useNotifications } from '../hooks';
 
 // Number of taps on version to reveal dev mode
 const DEV_MODE_TAP_COUNT = 5;
@@ -38,6 +39,7 @@ export function SettingsScreen() {
   const { colors, layout, isDark, preference } = useTheme();
   const { selectedProperty, setSelectedProperty, allProperties } = useProperty();
   const { isDemoMode, toggleMode } = useDevMode();
+  const { isEnabled: notificationsEnabled, toggleNotifications } = useNotifications(selectedProperty);
   const [showPropertyPicker, setShowPropertyPicker] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [showDevMode, setShowDevMode] = useState(false);
@@ -74,6 +76,13 @@ export function SettingsScreen() {
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       }
     }
+  };
+
+  const handleNotificationToggle = () => {
+    if (Platform.OS !== 'web') {
+      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+    }
+    toggleNotifications();
   };
 
   const handleDevModeToggle = () => {
@@ -174,6 +183,36 @@ export function SettingsScreen() {
             <ChevronRight size={20} color={colors.textTertiary} strokeWidth={2} />
           </View>
         </Card>
+
+        {/* Notifications - only show when property selected */}
+        {selectedProperty && (
+          <>
+            <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>
+              NOTIFICATIONS
+            </Text>
+            <Card style={styles.settingCard}>
+              <View style={styles.settingContent}>
+                <View style={[styles.settingIcon, { backgroundColor: colors.food + '15' }]}>
+                  <Bell size={20} color={colors.food} strokeWidth={2} />
+                </View>
+                <View style={styles.settingInfo}>
+                  <Text style={[styles.settingTitle, { color: colors.text }]}>
+                    Collection reminders
+                  </Text>
+                  <Text style={[styles.settingSubtitle, { color: colors.textSecondary }]}>
+                    {notificationsEnabled ? 'Reminds you at 7pm the night before' : 'Off'}
+                  </Text>
+                </View>
+                <Switch
+                  value={notificationsEnabled}
+                  onValueChange={handleNotificationToggle}
+                  trackColor={{ false: colors.border, true: colors.food }}
+                  thumbColor={colors.surface}
+                />
+              </View>
+            </Card>
+          </>
+        )}
 
         {/* Appearance */}
         <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>
