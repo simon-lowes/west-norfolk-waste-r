@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { WeatherWarning, getActiveWeatherWarnings } from '../api';
 
 interface UseWeatherWarningsResult {
@@ -18,7 +18,7 @@ export function useWeatherWarnings(): UseWeatherWarningsResult {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<Error | null>(null);
 
-  const fetchData = async () => {
+  const fetchData = useCallback(async () => {
     try {
       setIsLoading(true);
       setError(null);
@@ -29,11 +29,11 @@ export function useWeatherWarnings(): UseWeatherWarningsResult {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, []);
 
   useEffect(() => {
     fetchData();
-  }, []);
+  }, [fetchData]);
 
   const hasSevereWarning = activeWarnings.some(
     (w) => w.severity === 'amber' || w.severity === 'red'

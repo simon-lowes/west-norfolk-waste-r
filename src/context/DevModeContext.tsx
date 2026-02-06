@@ -48,7 +48,7 @@ export function DevModeProvider({ children }: DevModeProviderProps) {
     try {
       await AsyncStorage.setItem(DEV_MODE_STORAGE_KEY, newMode);
     } catch (error) {
-      console.warn('Failed to save dev mode preference:', error);
+      console.error('Failed to save dev mode preference:', error);
     }
   };
 
