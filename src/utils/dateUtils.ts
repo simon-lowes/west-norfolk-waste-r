@@ -11,6 +11,9 @@ const MONTH_NAMES = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Se
  * @returns The next occurrence as a Date object
  */
 export function getNextCollectionDate(dayOfWeek: number, fromDate: Date = new Date()): Date {
+  const currentHour = fromDate.getHours();
+  const currentMinute = fromDate.getMinutes();
+
   const result = new Date(fromDate);
   result.setHours(0, 0, 0, 0);
 
@@ -20,6 +23,11 @@ export function getNextCollectionDate(dayOfWeek: number, fromDate: Date = new Da
   // If the day has passed this week, go to next week
   if (daysUntil < 0) {
     daysUntil += 7;
+  }
+
+  // Collection day but past 7:00am — bins collected, show next week
+  if (daysUntil === 0 && (currentHour > 7 || (currentHour === 7 && currentMinute >= 1))) {
+    daysUntil = 7;
   }
 
   result.setDate(result.getDate() + daysUntil);

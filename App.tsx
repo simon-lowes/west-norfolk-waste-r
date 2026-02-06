@@ -3,7 +3,6 @@ import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
-import { useNavigation } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useFonts, Nunito_700Bold } from '@expo-google-fonts/nunito';
 import * as SplashScreen from 'expo-splash-screen';
@@ -41,34 +40,6 @@ const MORE_RESET_TIMEOUT_MS = 30_000;
 // Stack navigator for More section
 function MoreStack() {
   const { colors } = useTheme();
-  const navigation = useNavigation();
-  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    const parent = navigation.getParent();
-    if (!parent) return;
-
-    const unsubBlur = parent.addListener('blur', () => {
-      timeoutRef.current = setTimeout(() => {
-        navigation.reset({ index: 0, routes: [{ name: 'MoreHome' as never }] });
-      }, MORE_RESET_TIMEOUT_MS);
-    });
-
-    const unsubFocus = parent.addListener('focus', () => {
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-        timeoutRef.current = null;
-      }
-    });
-
-    return () => {
-      unsubBlur();
-      unsubFocus();
-      if (timeoutRef.current) {
-        clearTimeout(timeoutRef.current);
-      }
-    };
-  }, [navigation]);
 
   return (
     <Stack.Navigator
@@ -86,6 +57,7 @@ function MoreStack() {
 
 function AppNavigator() {
   const { colors, layout, isDark } = useTheme();
+  const moreResetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   return (
     <NavigationContainer>
@@ -158,6 +130,26 @@ function AppNavigator() {
               <MoreHorizontal size={size} color={color} strokeWidth={2} />
             ),
           }}
+          listeners={({ navigation }) => ({
+            blur: () => {
+              moreResetTimeoutRef.current = setTimeout(() => {
+                const state = navigation.getState();
+                const routes = state.routes.map((route: any) =>
+                  route.name === 'More'
+                    ? { ...route, state: { routes: [{ name: 'MoreHome' }], index: 0 } }
+                    : route
+                );
+                navigation.reset({ ...state, routes });
+                moreResetTimeoutRef.current = null;
+              }, MORE_RESET_TIMEOUT_MS);
+            },
+            focus: () => {
+              if (moreResetTimeoutRef.current) {
+                clearTimeout(moreResetTimeoutRef.current);
+                moreResetTimeoutRef.current = null;
+              }
+            },
+          })}
         />
       </Tab.Navigator>
     </NavigationContainer>
