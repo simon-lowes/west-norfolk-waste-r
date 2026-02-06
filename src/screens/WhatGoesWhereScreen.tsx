@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef, useCallback } from 'react';
 import {
   View,
   Text,
@@ -9,11 +9,15 @@ import {
   ScrollView,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import { useFocusEffect } from '@react-navigation/native';
 import { useTheme, areFontsLoaded, typography } from '../theme';
 import { useWasteSearch } from '../hooks';
 import { WasteItem, BinType, getBinColorKey } from '../types';
 import { SearchInput, Card, BinBadge, EmptyState } from '../components';
 import { Search, Trash2, Recycle, Leaf, UtensilsCrossed, Building2 } from 'lucide-react-native';
+
+// Reset search state after 60s away from the tab
+const SEARCH_RESET_TIMEOUT_MS = 60_000;
 
 // Popular search suggestions - all verified to return results
 const POPULAR_SEARCHES = [
@@ -30,6 +34,27 @@ const POPULAR_SEARCHES = [
 export function WhatGoesWhereScreen() {
   const { colors, layout } = useTheme();
   const { query, setQuery, results, isSearching, clearSearch } = useWasteSearch();
+
+  // Reset search after 60s away from this tab
+  const resetTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useFocusEffect(
+    useCallback(() => {
+      // Tab gained focus — cancel any pending reset
+      if (resetTimeoutRef.current) {
+        clearTimeout(resetTimeoutRef.current);
+        resetTimeoutRef.current = null;
+      }
+
+      return () => {
+        // Tab lost focus — start countdown to reset
+        resetTimeoutRef.current = setTimeout(() => {
+          clearSearch();
+          resetTimeoutRef.current = null;
+        }, SEARCH_RESET_TIMEOUT_MS);
+      };
+    }, [clearSearch])
+  );
 
   const getBinIcon = (binType: BinType) => {
     const colorKey = getBinColorKey(binType);
