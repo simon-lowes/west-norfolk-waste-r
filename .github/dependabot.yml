@@ -4,6 +4,19 @@ updates:
     directory: "/"
     schedule:
       interval: "daily"
+    ignore:
+      # Pinned by Expo SDK 54 — native code bundled in Expo Go.
+      # These can only move when upgrading the Expo SDK itself.
+      - dependency-name: "react"
+      - dependency-name: "react-dom"
+      - dependency-name: "react-native"
+      - dependency-name: "react-native-screens"
+      - dependency-name: "react-native-safe-area-context"
+      - dependency-name: "react-native-svg"
+      - dependency-name: "@react-native-async-storage/async-storage"
+      - dependency-name: "expo"
+      - dependency-name: "expo-*"
+      - dependency-name: "@types/react"
 
   - package-ecosystem: "devcontainers"
     directory: "/"
