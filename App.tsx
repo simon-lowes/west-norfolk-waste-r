@@ -1,8 +1,9 @@
-import React, { useCallback, useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { useNavigation } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useFonts, Nunito_700Bold } from '@expo-google-fonts/nunito';
 import * as SplashScreen from 'expo-splash-screen';
@@ -35,9 +36,39 @@ import { MoreScreen } from './src/screens/MoreScreen';
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
+const MORE_RESET_TIMEOUT_MS = 30_000;
+
 // Stack navigator for More section
 function MoreStack() {
   const { colors } = useTheme();
+  const navigation = useNavigation();
+  const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    const parent = navigation.getParent();
+    if (!parent) return;
+
+    const unsubBlur = parent.addListener('blur', () => {
+      timeoutRef.current = setTimeout(() => {
+        navigation.reset({ index: 0, routes: [{ name: 'MoreHome' as never }] });
+      }, MORE_RESET_TIMEOUT_MS);
+    });
+
+    const unsubFocus = parent.addListener('focus', () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+    });
+
+    return () => {
+      unsubBlur();
+      unsubFocus();
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, [navigation]);
 
   return (
     <Stack.Navigator
