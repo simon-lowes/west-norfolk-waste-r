@@ -125,15 +125,20 @@ export function useNotifications(property: Property | null) {
         return;
       }
 
-      const [stored, granted] = await Promise.all([
-        AsyncStorage.getItem(STORAGE_KEY),
-        checkPermission(),
-      ]);
+      try {
+        const [stored, granted] = await Promise.all([
+          AsyncStorage.getItem(STORAGE_KEY),
+          checkPermission(),
+        ]);
 
-      setPermissionGranted(granted);
-      const enabled = stored === 'true' && granted === true;
-      setIsEnabled(enabled);
-      setIsLoading(false);
+        setPermissionGranted(granted);
+        const enabled = stored === 'true' && granted === true;
+        setIsEnabled(enabled);
+      } catch (error) {
+        console.warn('Failed to initialize notifications:', error);
+      } finally {
+        setIsLoading(false);
+      }
     }
     init();
   }, []);
@@ -142,34 +147,44 @@ export function useNotifications(property: Property | null) {
   useEffect(() => {
     if (!isEnabled || !property || Platform.OS === 'web') return;
 
-    cancelAll().then(() => scheduleAll(property));
+    cancelAll()
+      .then(() => scheduleAll(property))
+      .catch((error) => console.warn('Failed to reschedule notifications:', error));
   }, [isEnabled, property?.id]);
 
   const toggleNotifications = useCallback(async () => {
     if (Platform.OS === 'web' || !property) return;
 
-    if (isEnabled) {
-      // Turning off
-      await cancelAll();
-      await AsyncStorage.setItem(STORAGE_KEY, 'false');
-      setIsEnabled(false);
-    } else {
-      // Turning on — request permission first
-      const granted = await requestPermission();
-      setPermissionGranted(granted);
+    try {
+      if (isEnabled) {
+        // Turning off
+        await cancelAll();
+        await AsyncStorage.setItem(STORAGE_KEY, 'false');
+        setIsEnabled(false);
+      } else {
+        // Turning on — request permission first
+        const granted = await requestPermission();
+        setPermissionGranted(granted);
 
-      if (!granted) return;
+        if (!granted) return;
 
-      await scheduleAll(property);
-      await AsyncStorage.setItem(STORAGE_KEY, 'true');
-      setIsEnabled(true);
+        await scheduleAll(property);
+        await AsyncStorage.setItem(STORAGE_KEY, 'true');
+        setIsEnabled(true);
+      }
+    } catch (error) {
+      console.warn('Failed to toggle notifications:', error);
     }
   }, [isEnabled, property]);
 
   const reschedule = useCallback(async (prop: Property | null) => {
     if (Platform.OS === 'web' || !prop || !isEnabled) return;
-    await cancelAll();
-    await scheduleAll(prop);
+    try {
+      await cancelAll();
+      await scheduleAll(prop);
+    } catch (error) {
+      console.warn('Failed to reschedule notifications:', error);
+    }
   }, [isEnabled]);
 
   return {
