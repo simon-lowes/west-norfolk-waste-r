@@ -184,35 +184,36 @@ export function SettingsScreen() {
           </View>
         </Card>
 
-        {/* Notifications - only show when property selected */}
-        {selectedProperty && (
-          <>
-            <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>
-              NOTIFICATIONS
-            </Text>
-            <Card style={styles.settingCard}>
-              <View style={styles.settingContent}>
-                <View style={[styles.settingIcon, { backgroundColor: colors.food + '15' }]}>
-                  <Bell size={20} color={colors.food} strokeWidth={2} />
-                </View>
-                <View style={styles.settingInfo}>
-                  <Text style={[styles.settingTitle, { color: colors.text }]}>
-                    Collection reminders
-                  </Text>
-                  <Text style={[styles.settingSubtitle, { color: colors.textSecondary }]}>
-                    {notificationsEnabled ? 'Reminds you at 7pm the night before' : 'Off'}
-                  </Text>
-                </View>
-                <Switch
-                  value={notificationsEnabled}
-                  onValueChange={handleNotificationToggle}
-                  trackColor={{ false: colors.border, true: colors.food }}
-                  thumbColor={colors.surface}
-                />
-              </View>
-            </Card>
-          </>
-        )}
+        {/* Notifications */}
+        <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>
+          NOTIFICATIONS
+        </Text>
+        <Card style={[styles.settingCard, !selectedProperty && { opacity: 0.5 }]}>
+          <View style={styles.settingContent}>
+            <View style={[styles.settingIcon, { backgroundColor: colors.food + '15' }]}>
+              <Bell size={20} color={colors.food} strokeWidth={2} />
+            </View>
+            <View style={styles.settingInfo}>
+              <Text style={[styles.settingTitle, { color: colors.text }]}>
+                Collection reminders
+              </Text>
+              <Text style={[styles.settingSubtitle, { color: colors.textSecondary }]}>
+                {!selectedProperty
+                  ? 'Select a property first'
+                  : notificationsEnabled
+                    ? 'Reminds you at 7pm the night before'
+                    : 'Off'}
+              </Text>
+            </View>
+            <Switch
+              value={notificationsEnabled}
+              onValueChange={handleNotificationToggle}
+              disabled={!selectedProperty}
+              trackColor={{ false: colors.border, true: colors.food }}
+              thumbColor={colors.surface}
+            />
+          </View>
+        </Card>
 
         {/* Appearance */}
         <Text style={[styles.sectionTitle, { color: colors.textSecondary }]}>
