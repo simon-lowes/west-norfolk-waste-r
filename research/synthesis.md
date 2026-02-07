@@ -110,7 +110,7 @@ Every app prominently features "Set Reminders" or "Enable Notifications" as a ke
 
 ### Priority 2: Medium Impact, Medium Effort
 
-4. **Quick Actions on Home**
+4. **Quick Actions on Home** ✅ Done
    - Add quick search bar on home screen
    - "What bin does _____ go in?" prompt
 
@@ -118,16 +118,18 @@ Every app prominently features "Set Reminders" or "Enable Notifications" as a ke
    - Visual calendar view (like Bin Reminder app)
    - Color-coded dots for each bin type
 
-6. **Better Onboarding**
+6. **Better Onboarding** ← NEXT PRIORITY
    - First-launch property selection flow
    - Notification permission request with explanation
+   - Users currently can't discover notifications without navigating to Settings first
 
 ### Priority 3: Future Considerations
 
-7. **Push Notifications** (requires Expo setup)
+7. **Push Notifications** ✅ Done (local scheduled, 7pm evening before collection)
 8. **Calendar Export** (iCal/.ics file)
 9. **Widget Support** (iOS/Android)
 10. **Accessibility Audit** (VoiceOver, larger fonts)
+11. **Development Build** — migrate from Expo Go to unlock full notification features + native dep updates
 
 ---
 
@@ -232,11 +234,13 @@ To make the council "silly not to take" our offer:
 ## Next Steps
 
 1. ~~Implement Priority 1 improvements~~ ✅ Done
-2. Test on Expo Go for both iOS and Android feel
-3. Create before/after screenshots for pitch to council
-4. Document features for handover
-5. Consider adding push notifications (future)
-6. Consider calendar export feature (future)
+2. ~~Push notifications~~ ✅ Done (Feb 2026) — local weekly reminders via expo-notifications
+3. **Onboarding flow** ← NEXT — users can't discover property selection or notifications without guidance
+4. Test on Expo Go for both iOS and Android feel
+5. Create before/after screenshots for pitch to council
+6. Document features for handover
+7. Consider calendar export feature (future)
+8. Consider development build migration (removes Expo Go warnings, unlocks native dep updates)
 
 ---
 
