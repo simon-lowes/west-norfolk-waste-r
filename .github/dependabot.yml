@@ -5,6 +5,8 @@ updates:
     schedule:
       interval: "daily"
     ignore:
+      - dependency-name: "*"
+        update-types: ["version-update:semver-major"]
       # Pinned by Expo SDK 54 — native code bundled in Expo Go.
       # These can only move when upgrading the Expo SDK itself.
       - dependency-name: "react"
