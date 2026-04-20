@@ -17,6 +17,10 @@ updates:
       - dependency-name: "expo"
       - dependency-name: "expo-*"
       - dependency-name: "@types/react"
+      # Expo's `expo install --check` pins typescript to a specific minor.
+      # Only bump major TS versions when upgrading the Expo SDK itself.
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: "devcontainers"
     directory: "/"
