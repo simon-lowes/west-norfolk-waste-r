@@ -6,7 +6,7 @@ interface UseWeatherWarningsResult {
   hasSevereWarning: boolean;
   isLoading: boolean;
   error: Error | null;
-  refetch: () => void;
+  refetch: () => Promise<void>;
 }
 
 /**

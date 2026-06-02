@@ -14,7 +14,7 @@ interface UseAlertsResult {
   alertCount: number;
   hasUrgentAlerts: boolean;
   isLoading: boolean;
-  refetch: () => void;
+  refetch: () => Promise<void>;
 }
 
 /**
@@ -82,9 +82,8 @@ export function useAlerts(postcode: string | null): UseAlertsResult {
   const { upcomingHoliday, daysUntilHoliday, isLoading: holidaysLoading, refetch: refetchHolidays } = useBankHolidays(!isDemoMode);
   const { activeWarnings, isLoading: warningsLoading, refetch: refetchWarnings } = useWeatherWarnings(!isDemoMode);
 
-  const refetch = () => {
-    refetchHolidays();
-    refetchWarnings();
+  const refetch = async () => {
+    await Promise.all([refetchHolidays(), refetchWarnings()]);
   };
 
   const alerts = useMemo(() => {

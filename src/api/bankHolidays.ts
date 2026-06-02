@@ -27,8 +27,13 @@ export async function fetchBankHolidays(): Promise<BankHoliday[]> {
 
     const data: BankHolidaysResponse = await response.json();
 
-    // We only care about England and Wales
-    const holidays = data['england-and-wales'].events;
+    // We only care about England and Wales. Validate the shape before
+    // dereferencing so a 200 with an unexpected body is treated as a failure
+    // rather than throwing and being cached as a permanent empty result.
+    const holidays = data?.['england-and-wales']?.events;
+    if (!Array.isArray(holidays)) {
+      throw new Error('Unexpected bank holidays payload');
+    }
 
     // Cache the result
     await setCachedData(CACHE_KEY, holidays);
@@ -36,8 +41,9 @@ export async function fetchBankHolidays(): Promise<BankHoliday[]> {
     return holidays;
   } catch (error) {
     console.warn('Bank holidays fetch skipped:', error);
-    // Cache empty result to avoid retry-spam on repeated mounts
-    await setCachedData(CACHE_KEY, []);
+    // Do NOT cache the empty fallback: caching [] with a fresh timestamp would
+    // suppress alerts and block refetch for the full 24h cache window. Returning
+    // [] without caching lets the next mount / refetch retry.
     return [];
   }
 }

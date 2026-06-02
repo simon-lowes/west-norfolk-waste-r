@@ -17,6 +17,8 @@ import {
 
 import { ThemeProvider, useTheme, setFontsLoaded } from './src/theme';
 import { DevModeProvider } from './src/context/DevModeContext';
+import { PropertyProvider } from './src/context/PropertyContext';
+import { DismissedAlertsProvider } from './src/context/DismissedAlertsContext';
 
 // Keep the splash screen visible while we fetch fonts
 SplashScreen.preventAutoHideAsync().catch(() => {
@@ -189,9 +191,13 @@ export default function App() {
   return (
     <SafeAreaProvider>
       <DevModeProvider>
-        <ThemeProvider>
-          <AppNavigator />
-        </ThemeProvider>
+        <PropertyProvider>
+          <DismissedAlertsProvider>
+            <ThemeProvider>
+              <AppNavigator />
+            </ThemeProvider>
+          </DismissedAlertsProvider>
+        </PropertyProvider>
       </DevModeProvider>
     </SafeAreaProvider>
   );

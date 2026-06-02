@@ -135,13 +135,13 @@ export function highlightMatch(
   }
 
   result.push({
-    text: text.substring(index, index + query.length),
+    text: text.substring(index, index + normalizedQuery.length),
     isMatch: true,
   });
 
-  if (index + query.length < text.length) {
+  if (index + normalizedQuery.length < text.length) {
     result.push({
-      text: text.substring(index + query.length),
+      text: text.substring(index + normalizedQuery.length),
       isMatch: false,
     });
   }

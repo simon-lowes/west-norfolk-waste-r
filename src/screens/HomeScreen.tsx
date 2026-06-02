@@ -26,12 +26,40 @@ export function HomeScreen({ navigation }: HomeScreenProps) {
   const { isAlertDismissed, dismissAlert } = useDismissedAlerts();
 
   const [refreshing, setRefreshing] = React.useState(false);
+  const isMountedRef = React.useRef(true);
+  const safetyTimerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const onRefresh = React.useCallback(() => {
+  React.useEffect(() => {
+    return () => {
+      isMountedRef.current = false;
+      if (safetyTimerRef.current) {
+        clearTimeout(safetyTimerRef.current);
+        safetyTimerRef.current = null;
+      }
+    };
+  }, []);
+
+  const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
-    refetchAlerts();
-    // Allow a short delay so the spinner is visible and data has time to propagate
-    setTimeout(() => setRefreshing(false), 800);
+    // Safety timeout so the spinner cannot hang forever if a refetch stalls.
+    if (safetyTimerRef.current) {
+      clearTimeout(safetyTimerRef.current);
+    }
+    safetyTimerRef.current = setTimeout(() => {
+      safetyTimerRef.current = null;
+      if (isMountedRef.current) setRefreshing(false);
+    }, 10000);
+
+    try {
+      // Tie the spinner to the actual refetch completion rather than a fixed timer.
+      await refetchAlerts();
+    } finally {
+      if (safetyTimerRef.current) {
+        clearTimeout(safetyTimerRef.current);
+        safetyTimerRef.current = null;
+      }
+      if (isMountedRef.current) setRefreshing(false);
+    }
   }, [refetchAlerts]);
 
   // Filter visible alerts
