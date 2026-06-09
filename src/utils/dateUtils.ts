@@ -67,7 +67,9 @@ export function getDaysUntil(targetDate: Date, fromDate: Date = new Date()): num
   target.setHours(0, 0, 0, 0);
 
   const diffTime = target.getTime() - today.getTime();
-  const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  // Use round rather than ceil so the ±1h skew across UK daylight-saving
+  // boundaries (a 25h or 23h local day) does not push the count off by one.
+  const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
 
   return diffDays;
 }

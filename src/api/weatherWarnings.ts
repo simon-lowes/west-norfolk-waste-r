@@ -55,8 +55,8 @@ function flattenCoordinates(coords: number[][][] | number[][][][]): number[][] {
 /**
  * Map Met Office severity to our severity type
  */
-function mapSeverity(metOfficeSeverity: string): WeatherSeverity {
-  const severity = metOfficeSeverity.toLowerCase();
+function mapSeverity(metOfficeSeverity: string | null | undefined): WeatherSeverity {
+  const severity = (metOfficeSeverity ?? '').toLowerCase();
   if (severity === 'red') return 'red';
   if (severity === 'amber') return 'amber';
   return 'yellow';
@@ -89,8 +89,12 @@ export async function fetchWeatherWarnings(): Promise<WeatherWarning[]> {
 
     const data: MetOfficeWarningsResponse = await response.json();
 
-    // Filter and transform warnings
-    const warnings: WeatherWarning[] = data.features
+    const features = Array.isArray(data?.features) ? data.features : [];
+
+    // Filter and transform warnings. Each feature is transformed inside its own
+    // try/catch so a single malformed feature is skipped rather than throwing
+    // and discarding every valid warning (and poisoning the cache).
+    const warnings: WeatherWarning[] = features
       .filter((feature) => {
         // Check if warning affects West Norfolk area using bounding box overlap
         // Flatten all coordinate arrays to get individual [lon, lat] points
@@ -104,15 +108,24 @@ export async function fetchWeatherWarnings(): Promise<WeatherWarning[]> {
           return true;
         }
       })
-      .map((feature) => ({
-        id: `met-warning-${feature.properties.type}-${feature.properties.severity}-${feature.properties.valid_from}-${feature.properties.valid_to}`,
-        title: feature.properties.title || `${feature.properties.type} Warning`,
-        description: feature.properties.description,
-        severity: mapSeverity(feature.properties.severity),
-        validFrom: feature.properties.valid_from,
-        validTo: feature.properties.valid_to,
-        affectsArea: true,
-      }));
+      .map((feature): WeatherWarning | null => {
+        try {
+          const props = feature.properties;
+          return {
+            id: `met-warning-${props.type}-${props.severity}-${props.valid_from}-${props.valid_to}`,
+            title: props.title || `${props.type} Warning`,
+            description: props.description,
+            severity: mapSeverity(props.severity),
+            validFrom: props.valid_from,
+            validTo: props.valid_to,
+            affectsArea: true,
+          };
+        } catch (featureError) {
+          console.warn('Skipping malformed weather feature:', featureError);
+          return null;
+        }
+      })
+      .filter((warning): warning is WeatherWarning => warning !== null);
 
     // Cache the result
     await setCachedData(CACHE_KEY, warnings);
@@ -120,8 +133,9 @@ export async function fetchWeatherWarnings(): Promise<WeatherWarning[]> {
     return warnings;
   } catch (error) {
     console.warn('Weather warnings fetch skipped:', error);
-    // Cache empty result to avoid retry-spam on repeated mounts
-    await setCachedData(CACHE_KEY, []);
+    // Do NOT cache the empty fallback: caching [] with a fresh timestamp would
+    // suppress warnings and block refetch for the full cache window. Returning
+    // [] without caching lets the next mount / refetch retry.
     return [];
   }
 }
