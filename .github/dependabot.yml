@@ -10,15 +10,19 @@ updates:
       semver-minor-days: 5
       semver-patch-days: 3
     ignore:
-      # Pinned by Expo SDK 57 — native code bundled in Expo Go.
-      # Major/minor can only move when upgrading the Expo SDK itself, but
-      # PATCH releases must come through: Expo ships SDK patches continuously
-      # and `expo install --check` fails the Build job the moment the lockfile
-      # falls behind them. Ignoring patches here silently accumulated drift
-      # across 8 packages and blocked every open PR in this repo.
-      - dependency-name: "react"
+      # --- Expo SDK 57 managed packages ---
+      #
+      # These split into two groups by how package.json pins them, and they
+      # need opposite Dependabot rules.
+      #
+      # Group 1 — RANGED (`^57.0.7`, `~4.26.0`, ...). Expo ships SDK patches
+      # continuously and `expo install --check` fails the Build job the moment
+      # the lockfile falls behind them. Patches MUST come through here.
+      # Blanket-ignoring these let drift accumulate across 8 packages until it
+      # blocked every open PR in the repo (fixed in #249).
+      - dependency-name: "expo"
         update-types: ["version-update:semver-major", "version-update:semver-minor"]
-      - dependency-name: "react-dom"
+      - dependency-name: "expo-*"
         update-types: ["version-update:semver-major", "version-update:semver-minor"]
       - dependency-name: "react-native"
         update-types: ["version-update:semver-major", "version-update:semver-minor"]
@@ -26,16 +30,18 @@ updates:
         update-types: ["version-update:semver-major", "version-update:semver-minor"]
       - dependency-name: "react-native-safe-area-context"
         update-types: ["version-update:semver-major", "version-update:semver-minor"]
+      #
+      # Group 2 — EXACT-pinned (`19.2.3`, `15.15.4`, `2.2.0`). Expo requires
+      # one specific version of each and `expo install --check` rejects any
+      # other, so a Dependabot patch PR here can never pass Build. These are
+      # ignored outright and only move as part of an Expo SDK upgrade.
+      # (Proved by #250/#251/#252: Expo 57 wants react/react-dom 19.2.3 and
+      # react-native-svg 15.15.4 exactly — all three PRs failed and were closed.)
+      - dependency-name: "react"
+      - dependency-name: "react-dom"
       - dependency-name: "react-native-svg"
-        update-types: ["version-update:semver-major", "version-update:semver-minor"]
       - dependency-name: "@react-native-async-storage/async-storage"
-        update-types: ["version-update:semver-major", "version-update:semver-minor"]
-      - dependency-name: "expo"
-        update-types: ["version-update:semver-major", "version-update:semver-minor"]
-      - dependency-name: "expo-*"
-        update-types: ["version-update:semver-major", "version-update:semver-minor"]
       - dependency-name: "@types/react"
-        update-types: ["version-update:semver-major", "version-update:semver-minor"]
       # Expo's `expo install --check` pins typescript to a specific minor.
       # Only bump major TS versions when upgrading the Expo SDK itself.
       - dependency-name: "typescript"
