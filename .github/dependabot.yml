@@ -10,18 +10,32 @@ updates:
       semver-minor-days: 5
       semver-patch-days: 3
     ignore:
-      # Pinned by Expo SDK 54 — native code bundled in Expo Go.
-      # These can only move when upgrading the Expo SDK itself.
+      # Pinned by Expo SDK 57 — native code bundled in Expo Go.
+      # Major/minor can only move when upgrading the Expo SDK itself, but
+      # PATCH releases must come through: Expo ships SDK patches continuously
+      # and `expo install --check` fails the Build job the moment the lockfile
+      # falls behind them. Ignoring patches here silently accumulated drift
+      # across 8 packages and blocked every open PR in this repo.
       - dependency-name: "react"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
       - dependency-name: "react-dom"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
       - dependency-name: "react-native"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
       - dependency-name: "react-native-screens"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
       - dependency-name: "react-native-safe-area-context"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
       - dependency-name: "react-native-svg"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
       - dependency-name: "@react-native-async-storage/async-storage"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
       - dependency-name: "expo"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
       - dependency-name: "expo-*"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
       - dependency-name: "@types/react"
+        update-types: ["version-update:semver-major", "version-update:semver-minor"]
       # Expo's `expo install --check` pins typescript to a specific minor.
       # Only bump major TS versions when upgrading the Expo SDK itself.
       - dependency-name: "typescript"
