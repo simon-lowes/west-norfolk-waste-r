@@ -105,3 +105,9 @@ src/
 - Nunito 700 Bold used for headings (loaded via expo-font)
 - Icons from lucide-react-native (consistent stroke width 2)
 - Portrait orientation only
+
+## CI and Dependabot
+- `ci.yml` runs Test (jest, eslint) and Build (`expo install --check`, web export) on every PR; both are required checks on `main`.
+- `dependabot-auto-merge.yml` approves and enables auto-merge for non-major Dependabot bumps once those checks pass.
+- Expo SDK packages must be bumped together: `expo install --check` fails the Build job as soon as any one of them lags. Dependabot's one-package-at-a-time PRs cannot satisfy it on their own (see #249, #263).
+- A Claude-based `claude-review` job used to run in the auto-merge workflow. It was removed in September 2026 after failing on every PR since July (expired `CLAUDE_CODE_OAUTH_TOKEN`, plus upstream bugs) with nothing depending on it. The `CLAUDE_CODE_OAUTH_TOKEN` secret can be deleted. To bring it back, see https://code.claude.com/docs/en/github-actions.
