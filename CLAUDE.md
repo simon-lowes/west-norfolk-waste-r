@@ -7,7 +7,7 @@ When running unattended: Never ask questions, never present options, make all de
 **West Norfolk Waste-R** - A React Native (Expo) app for West Norfolk residents to check bin collection schedules, search what goes where, find recycling centres, and view service alerts. Supports iOS, Android, and web.
 
 ## Tech Stack
-- **Framework**: Expo SDK 54 (React Native 0.81)
+- **Framework**: Expo SDK 58 (React Native 0.88, React 19.3); Expo tooling needs Node 22.13+ (CI uses Node 22)
 - **Language**: TypeScript
 - **Navigation**: React Navigation (bottom tabs + native stack)
 - **Styling**: Custom theme system (light/dark mode)
