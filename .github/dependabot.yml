@@ -9,6 +9,16 @@ updates:
       semver-major-days: 7
       semver-minor-days: 7
       semver-patch-days: 7
+      # Expo SDK packages skip the cooldown: `expo install --check` fails the
+      # Build job the moment the lockfile lags Expo's latest SDK patch, so a
+      # 7-day wait would leave every PR red for a week after each Expo release.
+      # Expo publishes these via trusted publishing with provenance.
+      exclude:
+        - "expo"
+        - "expo-*"
+        - "@expo/*"
+        - "jest-expo"
+        - "babel-preset-expo"
     ignore:
       # --- Expo SDK 57 managed packages ---
       #
