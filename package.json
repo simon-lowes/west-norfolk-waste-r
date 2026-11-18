@@ -48,7 +48,7 @@
     "eslint-config-expo": "~58.0.4",
     "eslint-plugin-security": "^4.2.1",
     "jest": "~30.5.2",
-    "jest-expo": "~58.0.14",
+    "jest-expo": "~58.0.15",
     "typescript": "~6.0.3"
   },
   "overrides": {
